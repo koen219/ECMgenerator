@@ -1,6 +1,6 @@
-from ecmgen.network import Network, BEADTYPE, BONDTYPE
-from ecmgen.stranddistributions import StrandDistribution
-from ecmgen.parameters import Parameter
+from .network import Network, BEADTYPE, BONDTYPE
+from .stranddistributions import StrandDistribution
+from .parameters import Parameter
 
 import numpy as np
 from abc import ABC, abstractmethod

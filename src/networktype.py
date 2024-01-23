@@ -3,7 +3,7 @@ import numpy as np
 import numpy.typing as npt
 from typing import Optional
 
-from ecmgen.network import Network
+from .network import Network
 
 
 class NetworkType:

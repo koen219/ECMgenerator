@@ -1,4 +1,4 @@
-from ecmgen.networktype import NetworkType
+from ..ecmgen.networktype import NetworkType
 
 import unittest
 

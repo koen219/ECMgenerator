@@ -1,6 +1,6 @@
-from ecmgen.strandgens import RandomStrandGenerator
-from ecmgen.parameters import Parameter
-from ecmgen.stranddistributions import UniformStrandDistribution
+from .strandgens import RandomStrandGenerator
+from .parameters import Parameter
+from .stranddistributions import UniformStrandDistribution
 import unittest
 
 from numpy.random import default_rng
