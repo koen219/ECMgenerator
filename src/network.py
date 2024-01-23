@@ -29,4 +29,5 @@ class Network:
     angle_groups: List[ANGLE] = field(default_factory=list)
     angle_types: List[ANGLETYPE] = field(default_factory=list)
 
+    # used to store lengths of types
     details_of_bondtypes: Dict[BONDTYPE, Dict[str, float]] = field(default_factory=dict)

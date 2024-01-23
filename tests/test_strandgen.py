@@ -2,6 +2,7 @@ from ecmgen.network import Network
 from ecmgen.strandgens import RandomStrandGenerator
 from ecmgen.parameters import DomainParameters, RandomStrandGeneratorParameters
 from ecmgen.stranddistributions import UniformStrandDistribution
+from ecmgen.crosslink_distributors import TipToTailCrosslinkDistributer
 import unittest
 
 from numpy.random import default_rng
@@ -68,6 +69,31 @@ class TestStringMethods(unittest.TestCase):
         for row in bond_vectors:
             self.assertAlmostEqual(row[0], bond_vectors[0][0])
             self.assertAlmostEqual(row[1], bond_vectors[0][1])
+            
+    def test_TipToToeCrosslinker(self):
+        rng = default_rng(1)
+        network = Network(DomainParameters(200, 200))
+        strand_par = RandomStrandGeneratorParameters(3, 4, 6.25)
+        rsg = RandomStrandGenerator(
+            strand_par,
+            UniformStrandDistribution(network.domain.sizex, network.domain.sizey, rng),
+        )
+        rsg.build_strands(network) 
+        TipToTailCrosslinkDistributer(3, 4).distribute_crosslinkers(network)
+       
+        self.assertEqual(len(network.bonds_groups), 11)
+        self.assertEqual(list(network.bonds_groups[0]), [0,1])
+        self.assertEqual(list(network.bonds_groups[1]), [1,2])
+        self.assertEqual(list(network.bonds_groups[2]), [3,4])
+        self.assertEqual(list(network.bonds_groups[3]), [4,5])
+        self.assertEqual(list(network.bonds_groups[4]), [6,7])
+        self.assertEqual(list(network.bonds_groups[5]), [7,8])
+        self.assertEqual(list(network.bonds_groups[6]), [9,10])
+        self.assertEqual(list(network.bonds_groups[7]), [10,11])
+        self.assertEqual(list(network.bonds_groups[8]), [2,3])
+        self.assertEqual(list(network.bonds_groups[9]), [5,6])
+        self.assertEqual(list(network.bonds_groups[10]), [8,9])
+        
 
 
 if __name__ == "__main__":

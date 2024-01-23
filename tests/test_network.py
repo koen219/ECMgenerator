@@ -1,4 +1,4 @@
-from ecmgen.networks import random_network, single_strand
+from ecmgen.networks import random_network, single_strand, single_spring
 
 import unittest
 
@@ -48,7 +48,62 @@ class TestStringMethods(unittest.TestCase):
         for i in range(beads):
             self.assertEqual(network.beads_positions[i][0], 50+ i)
             self.assertEqual(network.beads_positions[i][1], 50)
-        
 
+    def test_singleSpring(self):
+        network = single_spring(
+            200,
+            200,
+            4,
+            3,
+            6.25,
+            None
+        )
+       
+        self.assertEqual(len(network.bonds_groups), 11)
+        self.assertEqual(list(network.bonds_groups[0]), [0,1])
+        self.assertEqual(list(network.bonds_groups[1]), [1,2])
+        self.assertEqual(list(network.bonds_groups[2]), [3,4])
+        self.assertEqual(list(network.bonds_groups[3]), [4,5])
+        self.assertEqual(list(network.bonds_groups[4]), [6,7])
+        self.assertEqual(list(network.bonds_groups[5]), [7,8])
+        self.assertEqual(list(network.bonds_groups[6]), [9,10])
+        self.assertEqual(list(network.bonds_groups[7]), [10,11])
+        self.assertEqual(list(network.bonds_groups[8]), [2,3])
+        self.assertEqual(list(network.bonds_groups[9]), [5,6])
+        self.assertEqual(list(network.bonds_groups[10]), [8,9])
+        
+        for bond in network.bonds_groups:
+            self.assertLess(bond[0] , len(network.beads_positions))
+            self.assertLess(bond[1] , len(network.beads_positions))
+
+    def test_singleSpring2(self):
+        network = single_spring(
+            sizex=200,
+            sizey=200,
+            number_of_beads_per_strand=3,
+            number_of_strands=11,
+            contour_length_of_strand=6.25,
+            seed=None
+        )
+        
+        self.assertEqual(sum([1 for x in network.bonds_types if x == "crosslinker"]), 10)
+        self.assertEqual(sum([1 for x in network.bonds_types if x == "polymer"]), 11 * 2)
+       
+        self.assertEqual(len(network.bonds_groups), 32)
+        self.assertEqual(list(network.bonds_groups[0]), [0,1])
+        self.assertEqual(list(network.bonds_groups[1]), [1,2])
+        self.assertEqual(list(network.bonds_groups[2]), [3,4])
+        self.assertEqual(list(network.bonds_groups[3]), [4,5])
+        self.assertEqual(list(network.bonds_groups[4]), [6,7])
+        self.assertEqual(list(network.bonds_groups[5]), [7,8])
+        self.assertEqual(list(network.bonds_groups[6]), [9,10])
+        self.assertEqual(list(network.bonds_groups[7]), [10,11])
+        self.assertEqual(list(network.bonds_groups[2*11]), [2,3])
+        self.assertEqual(list(network.bonds_groups[2*11+1]), [5,6])
+        self.assertEqual(list(network.bonds_groups[2*11+2]), [8,9])
+        
+        for bond in network.bonds_groups:
+            self.assertLess(bond[0] , len(network.beads_positions))
+            self.assertLess(bond[1] , len(network.beads_positions))
 if __name__ == "__main__":
     unittest.main()

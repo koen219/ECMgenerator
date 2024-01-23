@@ -28,7 +28,8 @@ class NetworkType:
     def generate(self) -> Network:
         """Generates a network from the generators. Throws exceptions when some network are not neatly generated."""
         self._strand_generator.build_strands(self._network)
-        self._strand_generator.fix_boundaries(self._network)
+        if self._network.domain.fix_boundary:
+            self._strand_generator.fix_boundaries(self._network)
         if self._crosslink_distributor:
             self._crosslink_distributor.distribute_crosslinkers(self._network)
         return self._network
