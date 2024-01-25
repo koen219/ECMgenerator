@@ -9,7 +9,12 @@ from typing import Tuple, List, Optional
 
 class StrandGenerator(ABC):
     def __init__(self, network: Optional[Network] = None):
-        self._network = network
+        self._network: Network
+
+        if network:
+            self._network = network
+        else:
+            self._network = Network()
 
     @abstractmethod
     def build_strands(self, par) -> Network:
@@ -22,12 +27,8 @@ class RandomStrandGenerator(StrandGenerator):
         self, strand_distribution: StrandDistribution, network: Optional[Network] = None
     ):
         self._strand_distribution = strand_distribution
+        super().__init__(network)
 
-        self._network: Network
-        if network:
-            self._network = network
-        else:
-            self._network = Network()
 
     def build_strands(self, par: Parameter):
         particlepos, types = self._pos_gen(par)
