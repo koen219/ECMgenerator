@@ -34,6 +34,7 @@ class RandomStrandGenerator(StrandGenerator):
         bondsgroup, bondstypes = self._bond_gen()
         anglegroup, angletypes = self._angle_gen()
 
+
         network.beads_positions.extend(particlepos)
         network.beads_types.extend(types)
 
