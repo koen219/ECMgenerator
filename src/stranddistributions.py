@@ -30,10 +30,10 @@ class UniformStrandDistribution(StrandDistribution):
         """
         Return starting positions of beads
         """
-        return self._rng.uniform(-self._Lx, self._Lx, size=n)
+        return self._rng.uniform(0, 2*self._Lx, size=n)
 
     def pos_y_dist(self, n):
-        return self._rng.uniform(-self._Ly, self._Ly, size=n)
+        return self._rng.uniform(0, 2*self._Ly, size=n)
 
     def angle_dist(self, n):
         return self._rng.uniform(0, 2 * np.pi, size=n)
