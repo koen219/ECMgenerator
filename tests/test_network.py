@@ -1,4 +1,4 @@
-from ..ecmgen.networktype import NetworkType
+from ecmgen.networktype import NetworkType
 
 import unittest
 
@@ -8,7 +8,7 @@ class TestStringMethods(unittest.TestCase):
         network_type = NetworkType(
             None, None, None
         )
-        self.assertEqual('foo'.upper(), 'FOO')
+        
 
 
 if __name__ == '__main__':
