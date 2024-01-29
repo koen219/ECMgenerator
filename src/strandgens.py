@@ -8,11 +8,10 @@ from typing import Tuple, List, Optional
 
 
 class StrandGenerator(ABC):
-
     @abstractmethod
     def build_strands(self, network: Network):
         pass
-    
+
     @abstractmethod
     def fix_boundaries(self, network: Network):
         pass
@@ -45,20 +44,18 @@ class RandomStrandGenerator(StrandGenerator):
         network.angle_types.extend(angletypes)
 
         return network
-    
+
     def fix_boundaries(self, network: Network):
         pos = np.array(network.beads_positions)
         typeid = np.array(network.beads_types, dtype=object)
-        
+
         fix_boundary = network.domain.fix_boundary
         Lx = network.domain.Lx
         Ly = network.domain.Ly
         if fix_boundary:
-            boundary_particles = (abs(pos[:, 0]) > Lx) | (
-                abs(pos[:, 1]) > Ly
-            )
+            boundary_particles = (abs(pos[:, 0]) > Lx) | (abs(pos[:, 1]) > Ly)
             typeid[boundary_particles] = "boundary"
-            
+
         network.beads_types = typeid.tolist()
 
     def _pos_gen(self):
@@ -91,7 +88,6 @@ class RandomStrandGenerator(StrandGenerator):
             )
         pos = pos.reshape((num_particles, 2))
         typeid = np.array(["free"] * num_particles, dtype=object)
-
 
         typeid = typeid.tolist()
 

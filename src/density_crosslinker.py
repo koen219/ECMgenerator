@@ -12,8 +12,6 @@ import itertools
 from collections import defaultdict
 
 
-
-
 class _CrosslinkQuantizer:
     def __init__(self, crosslink_max_r, number):
         self._max = crosslink_max_r
@@ -43,7 +41,8 @@ class _CrosslinkQuantizer:
 
 class StrandDensityCrosslinkDistributer(CrosslinkDistributer):
     def __init__(
-        self, par: StrandDensityCrosslinkDistributerParameters, seed: Optional[int]):
+        self, par: StrandDensityCrosslinkDistributerParameters, seed: Optional[int]
+    ):
         self._par = par
         self._rng = np.random.default_rng(seed)
         self._binner: FiberBin
@@ -74,8 +73,11 @@ class StrandDensityCrosslinkDistributer(CrosslinkDistributer):
             r = np.linalg.norm(np.array(pos[bond[0]]) - np.array(pos[bond[1]]))
             typ = self._quantizer.computetype(float(r))
             selected_types.append(typ)
-            
-            network.details_of_bondtypes[typ] = {'r0': self._quantizer.spring_options(0.0)[typ]['r0'], 'k': 0}
+
+            network.details_of_bondtypes[typ] = {
+                "r0": self._quantizer.spring_options(0.0)[typ]["r0"],
+                "k": 0,
+            }
 
         return list(zip(selected_bonds, selected_types))
 
@@ -99,7 +101,7 @@ class StrandDensityCrosslinkDistributer(CrosslinkDistributer):
             self._par.number_of_beads_per_strand,
             self._par.number_of_strands,
             network.domain.sizex,
-            network.domain.sizey
+            network.domain.sizey,
         )
 
         bondgroup = np.array(network.bonds_groups)
@@ -133,13 +135,14 @@ class StrandDensityCrosslinkDistributer(CrosslinkDistributer):
             bonds_in_nbhd = bonds_in_nbhd.union(bondstoadd)
         return bonds_in_nbhd
 
-    def _find_all_bead_pairs_with_different_fibers(self, network: Network, bonds_in_nbhd: Set[BONDID]):
+    def _find_all_bead_pairs_with_different_fibers(
+        self, network: Network, bonds_in_nbhd: Set[BONDID]
+    ):
         """
         Pairs all beads in the list of bonds that are connected to different fibers.
         """
         # We create a list of vertex_pairs such that no two vertices are part of the same fibre.
         fiber_dict: Dict[FIBREID, List[BEADID]] = defaultdict(list)
-
 
         for bondid in bonds_in_nbhd:
             for bead in network.bonds_groups[bondid]:
@@ -153,9 +156,7 @@ class StrandDensityCrosslinkDistributer(CrosslinkDistributer):
         all_bead_pairs = []
         fiberpair: Tuple[List[BEADID], List[BEADID]]
         for fiberpair in itertools.combinations(fiber_dict.values(), 2):
-            beadpair: List[BOND] = list(itertools.product(
-                *fiberpair
-            ) ) 
+            beadpair: List[BOND] = list(itertools.product(*fiberpair))
             all_bead_pairs.extend(beadpair)
         return all_bead_pairs
 
@@ -171,9 +172,7 @@ class StrandDensityCrosslinkDistributer(CrosslinkDistributer):
         pos = np.array(network.beads_positions)
         cum_p = 0
         for k0, k1 in bead_pairs:
-            r = np.linalg.norm(
-                np.array(pos[k0]) - np.array(pos[k1])  # type: ignore
-            )
+            r = np.linalg.norm(np.array(pos[k0]) - np.array(pos[k1]))  # type: ignore
             p = self._crosslink_r_dist(r)
             dist.append(p)
             cum_p += p
@@ -201,8 +200,7 @@ class StrandDensityCrosslinkDistributer(CrosslinkDistributer):
             # Consider the bins next to the current bin and take all bonds that are in there as well.
             bonds_in_nbhd = self._find_bonds_in_neighbourhood(nx, ny)
             all_bead_pairs = self._find_all_bead_pairs_with_different_fibers(
-                network,
-                bonds_in_nbhd
+                network, bonds_in_nbhd
             )
             # remove beads that already have a crosslinker
             filtered_bead_pairs = list(
@@ -217,7 +215,14 @@ class StrandDensityCrosslinkDistributer(CrosslinkDistributer):
 
             if len(filtered_bead_pairs) == 0:  # If there was only one fiber
                 continue
-            if len(bonds := self._sample_bonds_on_distance(filtered_bead_pairs, 1,network)) > 0:
+            if (
+                len(
+                    bonds := self._sample_bonds_on_distance(
+                        filtered_bead_pairs, 1, network
+                    )
+                )
+                > 0
+            ):
                 allready_crosslinked_beads.extend(itertools.chain(*bonds))
                 selected_bonds[(ny, nx)] = bonds[0]
         return list(selected_bonds.values())

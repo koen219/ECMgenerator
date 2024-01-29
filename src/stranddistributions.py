@@ -5,7 +5,6 @@ from typing import Optional
 
 
 class StrandDistribution(ABC):
-
     @abstractmethod
     def pos_x_dist(self, n) -> npt.NDArray[np.float64]:
         pass
@@ -24,7 +23,7 @@ class UniformStrandDistribution(StrandDistribution):
         self._sizex = sizex
         self._sizey = sizey
         if seed:
-            self._rng = np.random.default_rng(seed)            
+            self._rng = np.random.default_rng(seed)
         else:
             self._rng = np.random.default_rng()
 

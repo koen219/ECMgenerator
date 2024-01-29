@@ -1,7 +1,11 @@
 from .stranddistributions import UniformStrandDistribution
 from .strandgens import RandomStrandGenerator
 from .density_crosslinker import StrandDensityCrosslinkDistributer
-from .parameters import DomainParameters, RandomStrandGeneratorParameters, StrandDensityCrosslinkDistributerParameters
+from .parameters import (
+    DomainParameters,
+    RandomStrandGeneratorParameters,
+    StrandDensityCrosslinkDistributerParameters,
+)
 from .networktype import NetworkType
 from .network import Network
 import numpy.random as npr
@@ -36,7 +40,7 @@ def random_network(
                 number_of_strands,
                 crosslink_bin_size,
             ),
-            seed=seed   
+            seed=seed,
         ),
         seed=seed,
     )

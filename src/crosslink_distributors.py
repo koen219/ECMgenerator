@@ -3,6 +3,7 @@ from typing import Optional, List, Tuple, Dict, Set
 from .network import Network
 from .network import BOND, BONDTYPE, BEADID, FIBREID, BONDID, Network
 
+
 class CrosslinkDistributer(ABC):
     def distribute_crosslinkers(self, network: Network):
         bonds_to_add = list()
@@ -29,7 +30,6 @@ class CrosslinkDistributer(ABC):
 
         network.bonds_groups.extend(bonds_to_add)
         network.bonds_types.extend(types_to_add)
-        
 
     @abstractmethod
     def select_bonds(self, network: Network) -> List[Tuple[BOND, BONDTYPE]]:

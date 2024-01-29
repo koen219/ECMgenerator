@@ -107,14 +107,18 @@ class FiberBin:
         inter = self._interpolate_beads(pos, N)
         X_inter = inter[:, 0]
         Y_inter = inter[:, 1]
-        bin_x = np.linspace(0.0-self.offset_x, self.sizex-self.offset_x, self.num_bins_x)
-        bin_y = np.linspace(0.0-self.offset_y, self.sizey-self.offset_y, self.num_bins_y)
+        bin_x = np.linspace(
+            0.0 - self.offset_x, self.sizex - self.offset_x, self.num_bins_x
+        )
+        bin_y = np.linspace(
+            0.0 - self.offset_y, self.sizey - self.offset_y, self.num_bins_y
+        )
         num_bin_x = len(bin_x) - 1
         num_bin_y = len(bin_y) - 1
         binning_range = np.array(
             [
-                [0.0-self.offset_x, self.sizex-self.offset_x],
-                [0.0-self.offset_y,    self.sizey-self.offset_y],
+                [0.0 - self.offset_x, self.sizex - self.offset_x],
+                [0.0 - self.offset_y, self.sizey - self.offset_y],
             ]
         )
         counts, x_edge, y_edge, binnumber = binned_statistic_2d(

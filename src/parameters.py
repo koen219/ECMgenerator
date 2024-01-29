@@ -7,7 +7,7 @@ class DomainParameters:
     sizey: int
 
     fix_boundary: bool = field(default=False)
-    
+
     @property
     def Lx(self):
         return self.sizex // 2
@@ -22,6 +22,7 @@ class RandomStrandGeneratorParameters:
     number_of_beads_per_strand: int
     number_of_strands: int
     contour_length_of_strand: float
+
 
 @dataclass
 class StrandDensityCrosslinkDistributerParameters:
