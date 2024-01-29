@@ -1,2 +1,2 @@
 from .networks import random_network
-from .parameters import Parameter
+from .network import Network
