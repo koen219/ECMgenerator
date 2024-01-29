@@ -7,6 +7,7 @@ from .crosslink_distributors import CrosslinkDistributer
 
 from .network import Network
 
+
 class NetworkType:
     """Config class of the network. Used to generate a Network class."""
 
@@ -21,7 +22,7 @@ class NetworkType:
         self._crosslink_distributor = crosslink_distributor
 
         self._rng = np.random.default_rng(seed=seed)
-        
+
         self._network = Network(domain)
 
         self._network = Network(domain)

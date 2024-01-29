@@ -66,13 +66,13 @@ class TestStringMethods(unittest.TestCase):
             number_of_beads_per_strand=9,
             number_of_strands=100,
             contour_length_of_strand=50,
-            crosslink_max_r = 1.0,
+            crosslink_max_r=1.0,
             maximal_number_of_initial_crosslinks=50,
-            crosslink_bin_size=1/3,
-            seed= 10
+            crosslink_bin_size=1 / 3,
+            seed=10,
         )
         for bondtype in network.bonds_types:
-            if bondtype == 'polymer':
+            if bondtype == "polymer":
                 continue
             self.assertLessEqual(network.details_of_bondtypes[bondtype]['r0'], 1.0)
         

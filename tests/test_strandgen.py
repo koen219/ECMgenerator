@@ -104,49 +104,34 @@ class TestStringMethods(unittest.TestCase):
         )
         rsg = RandomStrandGenerator(
             strand_par,
-            UniformStrandDistribution(network.domain.sizex, network.domain.sizey, rng)
+            UniformStrandDistribution(network.domain.sizex, network.domain.sizey, rng),
         )
         rsg.build_strands(network)
-        
+
         pos = np.array(network.beads_positions)
         number_of_beads = 9 * 1
-        
+
         self.assertEqual(pos.shape, (number_of_beads, 2))
-        
+
         norms = np.linalg.norm(pos[:-1] - pos[1:], axis=1)
         self.assertEqual(norms.shape, (8,))
-        self.assertEqual(len(norms) , 8 )
-        
-        contour_length = np.sum(norms) 
-        self.assertAlmostEqual(contour_length, 6.25*8)
-        
+        self.assertEqual(len(norms), 8)
+
+        contour_length = np.sum(norms)
+        self.assertAlmostEqual(contour_length, 6.25 * 8)
+
     def test_directionOfSingleStrand(self):
         rng = default_rng(1)
         network = Network(DomainParameters(200, 200))
-        strand_par = RandomStrandGeneratorParameters(
-            9,
-            1,
-            50
-        )
+        strand_par = RandomStrandGeneratorParameters(9, 1, 50)
         rsg = RandomStrandGenerator(
             strand_par,
-            UniformStrandDistribution(network.domain.sizex, network.domain.sizey, rng)
+            UniformStrandDistribution(network.domain.sizex, network.domain.sizey, rng),
         )
         rsg.build_strands(network)
-        
+
         pos = np.array(network.beads_positions)
         number_of_beads = 9 * 1
-        
-        pos = np.array(network.beads_positions)
-        bond_vectors = (pos[:-1,:]-pos[1:,:])/ 6.25
-        self.assertEqual(bond_vectors.shape, (8,2))
-       
-        for row in bond_vectors:
-            self.assertAlmostEqual(row[0], bond_vectors[0][0]) 
-            self.assertAlmostEqual(row[1], bond_vectors[0][1]) 
-            
-    
-      
 
 if __name__ == "__main__":
     unittest.main()

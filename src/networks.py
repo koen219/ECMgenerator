@@ -10,8 +10,16 @@ from .parameters import (
 )
 =======
 from .density_crosslinker import StrandDensityCrosslinkDistributer
+<<<<<<< HEAD
 from .parameters import DomainParameters, RandomStrandGeneratorParameters, StrandDensityCrosslinkDistributerParameters
 >>>>>>> eb12f9f (Crosslinking now is added)
+=======
+from .parameters import (
+    DomainParameters,
+    RandomStrandGeneratorParameters,
+    StrandDensityCrosslinkDistributerParameters,
+)
+>>>>>>> 5dd9459 (formatting)
 from .networktype import NetworkType
 from .network import Network
 import numpy.random as npr
