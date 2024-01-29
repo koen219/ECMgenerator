@@ -50,10 +50,10 @@ class RandomStrandGenerator(StrandGenerator):
         typeid = np.array(network.beads_types, dtype=object)
 
         fix_boundary = network.domain.fix_boundary
-        Lx = network.domain.Lx
-        Ly = network.domain.Ly
+        sizex = network.domain.sizex
+        sizey = network.domain.sizey
         if fix_boundary:
-            boundary_particles = (abs(pos[:, 0]) > Lx) | (abs(pos[:, 1]) > Ly)
+            boundary_particles = (abs(pos[:, 0]) > sizex) | (abs(pos[:, 1]) > sizey)
             typeid[boundary_particles] = "boundary"
 
         network.beads_types = typeid.tolist()
