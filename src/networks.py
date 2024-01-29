@@ -1,5 +1,6 @@
 from .stranddistributions import UniformStrandDistribution, DeterministicStrandDistribution
 from .strandgens import RandomStrandGenerator
+<<<<<<< HEAD
 from .crosslink_distributors import TipToTailCrosslinkDistributer
 from .density_crosslinker import StrandDensityCrosslinkDistributer
 from .parameters import (
@@ -7,6 +8,10 @@ from .parameters import (
     RandomStrandGeneratorParameters,
     StrandDensityCrosslinkDistributerParameters,
 )
+=======
+from .density_crosslinker import StrandDensityCrosslinkDistributer
+from .parameters import DomainParameters, RandomStrandGeneratorParameters, StrandDensityCrosslinkDistributerParameters
+>>>>>>> eb12f9f (Crosslinking now is added)
 from .networktype import NetworkType
 from .network import Network
 import numpy.random as npr

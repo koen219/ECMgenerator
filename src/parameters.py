@@ -7,7 +7,6 @@ class DomainParameters:
     sizey: int
 
     fix_boundary: bool = field(default=False)
-
     @property
     def Lx(self):
         return self.sizex // 2

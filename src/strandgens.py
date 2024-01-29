@@ -19,6 +19,8 @@ class StrandGenerator(ABC):
 
 from .parameters import RandomStrandGeneratorParameters
 
+from .parameters import RandomStrandGeneratorParameters
+
 
 class RandomStrandGenerator(StrandGenerator):
     def __init__(
@@ -34,6 +36,10 @@ class RandomStrandGenerator(StrandGenerator):
         bondsgroup, bondstypes = self._bond_gen()
         anglegroup, angletypes = self._angle_gen()
 
+    def build_strands(self, network: Network):
+        particlepos, types = self._pos_gen()
+        bondsgroup, bondstypes = self._bond_gen()
+        anglegroup, angletypes = self._angle_gen()
 
         network.beads_positions.extend(particlepos)
         network.beads_types.extend(types)
