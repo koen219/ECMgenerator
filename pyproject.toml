@@ -19,6 +19,12 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.package-dir]
 ecmgen = "src"
 
+[tool.setuptools.package-data]
+ecmgen = ["py.typed"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [tool.tox]
 legacy_tox_ini = """
 [tox]
