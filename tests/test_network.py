@@ -1,4 +1,4 @@
-from ecmgen.networks import random_network
+from ecmgen.networks import random_network, single_strand
 
 import unittest
 
@@ -34,6 +34,21 @@ class TestStringMethods(unittest.TestCase):
                 continue
             self.assertLessEqual(network.details_of_bondtypes[bondtype]["r0"], 1.0)
 
+    def test_singleStrand(self):
+        beads = 9
+        network = single_strand(
+            200,
+            200,
+            50,50,3.141592653589793,
+            beads,
+            1*(beads-1),
+            None
+        )
+        print(network.beads_positions) 
+        for i in range(beads):
+            self.assertEqual(network.beads_positions[i][0], 50+ i)
+            self.assertEqual(network.beads_positions[i][1], 50)
+        
 
 if __name__ == "__main__":
     unittest.main()
