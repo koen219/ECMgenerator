@@ -19,8 +19,6 @@ class StrandGenerator(ABC):
 
 from .parameters import RandomStrandGeneratorParameters
 
-from .parameters import RandomStrandGeneratorParameters
-
 
 class RandomStrandGenerator(StrandGenerator):
     def __init__(
@@ -56,12 +54,13 @@ class RandomStrandGenerator(StrandGenerator):
         pos = np.array(network.beads_positions)
         typeid = np.array(network.beads_types, dtype=object)
 
-        fix_boundary = network.domain.fix_boundary
         sizex = network.domain.sizex
         sizey = network.domain.sizey
-        if fix_boundary:
-            boundary_particles = (abs(pos[:, 0]) > sizex) | (abs(pos[:, 1]) > sizey)
-            typeid[boundary_particles] = "boundary"
+
+        boundary_particles = (abs(pos[:, 0]) > sizex) | (abs(pos[:, 1]) > sizey)
+        typeid[boundary_particles] = "boundary"
+        
+        print("Fixed %s boundary particles" % np.sum(boundary_particles))
 
         network.beads_types = typeid.tolist()
 

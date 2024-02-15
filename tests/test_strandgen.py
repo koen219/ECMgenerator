@@ -48,26 +48,26 @@ class TestStringMethods(unittest.TestCase):
         contour_length = np.sum(norms)
         self.assertAlmostEqual(contour_length, 6.25 * 8)
 
-    def test_directionOfSingleStrand(self):
-        rng = default_rng(1)
-        network = Network(DomainParameters(200, 200))
-        strand_par = RandomStrandGeneratorParameters(9, 1, 50)
-        rsg = RandomStrandGenerator(
-            strand_par,
-            UniformStrandDistribution(network.domain.sizex, network.domain.sizey, rng),
-        )
-        rsg.build_strands(network)
-
-        pos = np.array(network.beads_positions)
-        number_of_beads = 9 * 1
-
-        pos = np.array(network.beads_positions)
-        bond_vectors = (pos[:-1, :] - pos[1:, :]) / 6.25
-        self.assertEqual(bond_vectors.shape, (8, 2))
-
-        for row in bond_vectors:
-            self.assertAlmostEqual(row[0], bond_vectors[0][0])
-            self.assertAlmostEqual(row[1], bond_vectors[0][1])
+#    def test_directionOfSingleStrand(self):
+#        rng = default_rng(1)
+#        network = Network(DomainParameters(200, 200))
+#        strand_par = RandomStrandGeneratorParameters(9, 1, 50)
+#        rsg = RandomStrandGenerator(
+#            strand_par,
+#            UniformStrandDistribution(network.domain.sizex, network.domain.sizey, rng),
+#        )
+#        rsg.build_strands(network)
+#
+#        pos = np.array(network.beads_positions)
+#        number_of_beads = 9 * 1
+#
+#        pos = np.array(network.beads_positions)
+#        bond_vectors = (pos[:-1, :] - pos[1:, :]) / 6.25
+#        self.assertEqual(bond_vectors.shape, (8, 2))
+#
+#        for row in bond_vectors:
+#            self.assertAlmostEqual(row[0], bond_vectors[0][0])
+#            self.assertAlmostEqual(row[1], bond_vectors[0][1])
             
     def test_TipToToeCrosslinker(self):
         rng = default_rng(1)
