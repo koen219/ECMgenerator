@@ -1,4 +1,7 @@
-from .stranddistributions import UniformStrandDistribution, DeterministicStrandDistribution
+from .stranddistributions import (
+    UniformStrandDistribution,
+    DeterministicStrandDistribution,
+)
 from .strandgens import RandomStrandGenerator
 from .crosslink_distributors import TipToTailCrosslinkDistributer
 from .density_crosslinker import StrandDensityCrosslinkDistributer
@@ -8,7 +11,11 @@ from .parameters import (
     StrandDensityCrosslinkDistributerParameters,
 )
 from .density_crosslinker import StrandDensityCrosslinkDistributer
-from .parameters import DomainParameters, RandomStrandGeneratorParameters, StrandDensityCrosslinkDistributerParameters
+from .parameters import (
+    DomainParameters,
+    RandomStrandGeneratorParameters,
+    StrandDensityCrosslinkDistributerParameters,
+)
 from .networktype import NetworkType
 from .network import Network
 import numpy.random as npr
@@ -35,7 +42,7 @@ def random_network(
                 number_of_strands=number_of_strands,
                 contour_length_of_strand=contour_length_of_strand,
             ),
-            UniformStrandDistribution(sizex + round(0.5* contour_length_of_strand), sizey+ round(0.5*contour_length_of_strand, seed)),
+            UniformStrandDistribution(sizex, sizey, seed),
         ),
         StrandDensityCrosslinkDistributer(
             StrandDensityCrosslinkDistributerParameters(
@@ -53,13 +60,24 @@ def random_network(
 
 
 def single_strand(
-    sizex, sizey, start_x, start_y, angle, number_of_beads_per_strand, contour_length_of_strand, seed=None
+    sizex,
+    sizey,
+    start_x,
+    start_y,
+    angle,
+    number_of_beads_per_strand,
+    contour_length_of_strand,
+    seed=None,
 ) -> Network:
     beads_to_middle_of_strand = number_of_beads_per_strand // 2
-    length_single_bond = contour_length_of_strand / (number_of_beads_per_strand-1)
+    length_single_bond = contour_length_of_strand / (number_of_beads_per_strand - 1)
 
-    middle_of_strand_x = start_x - np.cos(angle) * beads_to_middle_of_strand * length_single_bond
-    middle_of_strand_y = start_y - np.sin(angle) * beads_to_middle_of_strand * length_single_bond
+    middle_of_strand_x = (
+        start_x - np.cos(angle) * beads_to_middle_of_strand * length_single_bond
+    )
+    middle_of_strand_y = (
+        start_y - np.sin(angle) * beads_to_middle_of_strand * length_single_bond
+    )
 
     nt = NetworkType(
         DomainParameters(sizex, sizey, fix_boundary=True),
@@ -70,22 +88,30 @@ def single_strand(
                 contour_length_of_strand=contour_length_of_strand,
             ),
             DeterministicStrandDistribution(
-                [middle_of_strand_x], [middle_of_strand_y], [angle]),
+                [middle_of_strand_x], [middle_of_strand_y], [angle]
+            ),
         ),
         None,
         seed=seed,
     )
     return nt.generate()
 
+
 def single_spring(
-    sizex, sizey, number_of_strands, number_of_beads_per_strand, contour_length_of_strand, seed=None) -> Network:
+    sizex,
+    sizey,
+    number_of_strands,
+    number_of_beads_per_strand,
+    contour_length_of_strand,
+    seed=None,
+) -> Network:
 
     assert number_of_strands % 2 == 1
     n = (number_of_strands - 1) // 2
-    x_pos = [ 100+100.0* k / ( 2.0 * n) for k in range(number_of_strands)]
-    angle_up = np.arctan(np.sqrt(contour_length_of_strand**2 - (1/n)**2)*2*n)
-    angle_down = np.arctan(- np.sqrt(contour_length_of_strand**2 - (1/n)**2)*2*n)
-    angles = [angle_up, angle_down] * ((number_of_strands-1)//2) + [angle_up]
+    x_pos = [100 + 100.0 * k / (2.0 * n) for k in range(number_of_strands)]
+    angle_up = np.arctan(np.sqrt(contour_length_of_strand**2 - (1 / n) ** 2) * 2 * n)
+    angle_down = np.arctan(-np.sqrt(contour_length_of_strand**2 - (1 / n) ** 2) * 2 * n)
+    angles = [angle_up, angle_down] * ((number_of_strands - 1) // 2) + [angle_up]
 
     nt = NetworkType(
         DomainParameters(sizex, sizey, fix_boundary=True),
@@ -95,12 +121,12 @@ def single_spring(
                 number_of_strands=number_of_strands,
                 contour_length_of_strand=contour_length_of_strand,
             ),
-            DeterministicStrandDistribution(
-                x_pos, [100] * number_of_strands, angles),
+            DeterministicStrandDistribution(x_pos, [100] * number_of_strands, angles),
         ),
         TipToTailCrosslinkDistributer(
             number_of_beads_per_strand=number_of_beads_per_strand,
-            number_of_strands=number_of_strands),
+            number_of_strands=number_of_strands,
+        ),
         seed=seed,
     )
     return nt.generate()

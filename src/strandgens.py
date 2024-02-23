@@ -34,11 +34,6 @@ class RandomStrandGenerator(StrandGenerator):
         bondsgroup, bondstypes = self._bond_gen()
         anglegroup, angletypes = self._angle_gen()
 
-    def build_strands(self, network: Network):
-        particlepos, types = self._pos_gen()
-        bondsgroup, bondstypes = self._bond_gen()
-        anglegroup, angletypes = self._angle_gen()
-
         network.beads_positions.extend(particlepos)
         network.beads_types.extend(types)
 
@@ -57,7 +52,7 @@ class RandomStrandGenerator(StrandGenerator):
         sizex = network.domain.sizex
         sizey = network.domain.sizey
 
-        boundary_particles = (abs(pos[:, 0]) > sizex) | (abs(pos[:, 1]) > sizey)
+        boundary_particles = (abs(pos[:, 0]) > sizex) | (abs(pos[:, 1]) > sizey) | (pos[:,0] < 0) | (pos[:,1]<0)
         typeid[boundary_particles] = "boundary"
         
         print("Fixed %s boundary particles" % np.sum(boundary_particles))
