@@ -31,3 +31,27 @@ class Network:
 
     # used to store lengths of types
     details_of_bondtypes: Dict[BONDTYPE, Dict[str, float]] = field(default_factory=dict)
+
+    def __add__(self, other):
+        net = Network(self.domain)
+
+        net.beads_positions = [x.copy() for x in self.beads_positions]
+        net.beads_types = [x for x in self.beads_types]
+
+        net.bonds_groups = [x for x in self.bonds_groups]
+        net.bonds_types = [x for x in self.bonds_types]
+
+        net.angle_groups = [x for x in self.angle_groups]
+        net.angle_types = [x for x in self.angle_types]
+        
+        
+        net.beads_positions += [x.copy() for x in other.beads_positions]
+        net.beads_types += [x for x in other.beads_types]
+
+        net.bonds_groups += [x for x in other.bonds_groups]
+        net.bonds_types += [x for x in other.bonds_types]
+
+        net.angle_groups += [x for x in other.angle_groups]
+        net.angle_types += [x for x in other.angle_types]
+
+        return net
