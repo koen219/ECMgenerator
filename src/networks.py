@@ -73,8 +73,12 @@ def ISV_network(
     fix_boundary=None
 ) -> Network:
     rng = np.random.default_rng(seed)
+    if fix_boundary:
+        domain = DomainParameters(sizex, sizey, fix_boundary=fix_boundary)
+    else:
+        domain = DomainParameters(sizex, sizey, fix_boundary_north=True, fix_boundary_south=True)
     nt = NetworkType(
-        DomainParameters(sizex, sizey, fix_boundary=fix_boundary),
+        domain,
         RandomStrandGenerator(
             RandomStrandGeneratorParameters(
                 number_of_beads_per_strand=number_of_beads_per_strand,
