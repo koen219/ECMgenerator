@@ -142,6 +142,26 @@ def single_strand(
     )
     return nt.generate()
 
+from .regular_network import RegularNetwork, RegularNetworkParameters, RegularCrosslinker
+def regular(
+    sizex,
+    sizey,
+    number_of_fibers_per_side,
+    number_of_beads_per_strand,
+    fix_boundary,
+):
+    par = RegularNetworkParameters(
+        number_of_fibers_per_side*2,
+        number_of_beads_per_strand
+    )
+    nt = NetworkType(
+        DomainParameters(sizex, sizey, fix_boundary),
+        RegularNetwork(par),
+        RegularCrosslinker(par)
+    )
+
+    return nt.generate()
+
 
 def single_spring(
     sizex,
