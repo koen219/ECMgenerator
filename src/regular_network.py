@@ -35,7 +35,7 @@ class RegularNetwork(StrandGenerator):
         #
 
         pos, typeid = self._pos_gen(network.domain)
-        pos = self._rotate_network(pos)
+        # pos = self._rotate_network(pos)
         bondsgroup, bondstype = self._bond_gen(network.domain)
         anglegroup, angletypes = self._angle_gen(network.domain)
 
@@ -82,7 +82,7 @@ class RegularNetwork(StrandGenerator):
 
     def _pos_gen(self, domain: DomainParameters):
         num_particles = self._par.number_of_strands*self._par.number_of_beads_per_strand
-        pos = np.zeros((num_particles, 3))
+        pos = [] # np.zeros((num_particles, 3))
         typeid = []
         
         if self._par.only_vertical_strands:
@@ -103,8 +103,9 @@ class RegularNetwork(StrandGenerator):
                     typ = 'boundary'
                 else:
                     typ = 'free'
-                pos[index, 0] = x
-                pos[index, 1] = y
+                pos.append([x,y])
+#                pos[index, 0] = x
+#                pos[index, 1] = y
                 typeid.append(typ)
 
         return pos, typeid
@@ -158,9 +159,11 @@ class RegularCrosslinker(CrosslinkDistributer):
         self._num_beads = par.number_of_beads_per_strand
         self._num_strands = par.number_of_strands
 
-    def select_bonds(self, _: Network):
+    def select_bonds(self, network: Network):
         selected_bonds = []
         crosslink_type = "crosslinker"
+
+        network.details_of_bondtypes[crosslink_type] = {'r0': 0, 'k': 0}
 
         assert self._num_beads == (
             self._num_strands // 2), "Can not crosslink non square grid"
