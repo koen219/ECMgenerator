@@ -34,3 +34,25 @@ class CrosslinkDistributer(ABC):
     @abstractmethod
     def select_bonds(self, network: Network) -> List[Tuple[BOND, BONDTYPE]]:
         pass
+
+class TipToTailCrosslinkDistributer(CrosslinkDistributer):
+    def __init__(self, number_of_beads_per_strand, number_of_strands):
+        self._num_beads_per_strand = number_of_beads_per_strand
+        self._num_strands = number_of_strands
+        
+    def select_bonds(self, network: Network): 
+        selected_bonds = []
+        crosslink_type = "crosslinker"
+        
+        network.details_of_bondtypes[crosslink_type] = {'r0': 0, 'k': 0}
+
+        print(f"{self._num_strands=}")
+        print(f"{self._num_beads_per_strand=}")
+        for i in range(self._num_strands-1):
+            b0 = self._num_beads_per_strand * i + self._num_beads_per_strand - 1
+            b1 = b0 + 1
+            selected_bonds.append( ((b0, b1), crosslink_type))
+            print(b0, b1)
+            
+        return selected_bonds
+

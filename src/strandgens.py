@@ -49,12 +49,26 @@ class RandomStrandGenerator(StrandGenerator):
         pos = np.array(network.beads_positions)
         typeid = np.array(network.beads_types, dtype=object)
 
-        fix_boundary = network.domain.fix_boundary
-        Lx = network.domain.Lx
-        Ly = network.domain.Ly
-        if fix_boundary:
-            boundary_particles = (abs(pos[:, 0]) > Lx) | (abs(pos[:, 1]) > Ly)
+        sizex = network.domain.sizex
+        sizey = network.domain.sizey
+
+        if network.domain.fix_boundary or network.domain.fix_boundary_north:
+            boundary_particles = pos[:, 1] > sizey
             typeid[boundary_particles] = "boundary"
+
+        if network.domain.fix_boundary or network.domain.fix_boundary_south:
+            boundary_particles = pos[:, 1] < 0
+            typeid[boundary_particles] = "boundary"
+
+        if network.domain.fix_boundary or network.domain.fix_boundary_east:
+            boundary_particles = abs(pos[:, 0]) > sizex
+            typeid[boundary_particles] = "boundary"
+
+        if network.domain.fix_boundary or network.domain.fix_boundary_west:
+            boundary_particles = pos[:, 0] < 0
+            typeid[boundary_particles] = "boundary"
+
+        print("Fixed %s boundary particles" % np.sum(typeid == "boundary"))
 
         network.beads_types = typeid.tolist()
 

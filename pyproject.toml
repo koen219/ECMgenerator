@@ -1,5 +1,5 @@
 [project]
-name = "ECMGen"
+name = "ecmgen"
 authors = [
     { name="Koen", email="koen19@gmail.com" }
 ]
@@ -16,14 +16,19 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+packages = ["ecmgen"]
+
 [tool.setuptools.package-dir]
 ecmgen = "src"
 
 [tool.setuptools.package-data]
 ecmgen = ["py.typed"]
 
-[tool.setuptools.packages.find]
-where = ["src"]
+# [tool.setuptools.packages.find]
+# where = ["src"]
+# include = ["pkg*"]  # alternatively: `exclude = ["additional*"]`
+# namespaces = false
 
 [tool.tox]
 legacy_tox_ini = """
