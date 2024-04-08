@@ -59,6 +59,24 @@ class UniformStrandDistribution(StrandDistribution):
     def angle_dist(self, n):
         return self._rng.uniform(0, 2 * np.pi, size=n)
 
+class VonMisesStrandDistribution(StrandDistribution):
+    def __init__(self, sizex, sizey, mu, kappa, seed= None):
+        self._uniform_strand_distribution = UniformStrandDistribution(sizex,sizey,seed)
+        self._mu = mu
+        self._kappa = kappa
+        if seed:
+            self._rng = np.random.default_rng(seed)
+        else:
+            self._rng = np.random.default_rng()
+    
+    def pos_x_dist(self, n):
+        return self._uniform_strand_distribution.pos_x_dist(n)
+
+    def pos_y_dist(self, n):
+        return self._uniform_strand_distribution.pos_y_dist(n)
+
+    def angle_dist(self, n):
+        return self._rng.vonmises(self._mu, self._kappa, size=n)
 
 class DeterministicStrandDistribution(StrandDistribution):
     def __init__(self, x_samples, y_samples, angle_samples):

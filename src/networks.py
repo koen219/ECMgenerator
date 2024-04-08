@@ -1,7 +1,8 @@
 from .stranddistributions import (
     UniformStrandDistribution,
     DeterministicStrandDistribution,
-    StrandDistributionGeneral
+    StrandDistributionGeneral,
+    VonMisesStrandDistribution,
 )
 from .strandgens import RandomStrandGenerator
 from .crosslink_distributors import TipToTailCrosslinkDistributer
@@ -59,37 +60,32 @@ def random_network(
     )
     return nt.generate()
 
-def ISV_network(
+
+def random_directed_network(
     sizex,
     sizey,
     number_of_beads_per_strand,
     number_of_strands,
+    direction_spread,
+    direction_angle,
     contour_length_of_strand,
     crosslink_max_r,
     maximal_number_of_initial_crosslinks,
     crosslink_bin_size,
-    spread_xaxis=1.0,
     seed=None,
-    fix_boundary=None
+    fix_boundary=False,
 ) -> Network:
-    rng = np.random.default_rng(seed)
-    if fix_boundary:
-        domain = DomainParameters(sizex, sizey, fix_boundary=fix_boundary)
-    else:
-        domain = DomainParameters(sizex, sizey, fix_boundary_north=True, fix_boundary_south=True)
     nt = NetworkType(
-        domain,
+        DomainParameters(sizex, sizey, fix_boundary=fix_boundary),
         RandomStrandGenerator(
             RandomStrandGeneratorParameters(
                 number_of_beads_per_strand=number_of_beads_per_strand,
                 number_of_strands=number_of_strands,
                 contour_length_of_strand=contour_length_of_strand,
             ),
-            StrandDistributionGeneral(
-                lambda n: rng.normal(sizex*0.5, spread_xaxis, n),
-                lambda n: rng.uniform(0, sizey, n),
-                lambda n: rng.uniform(0, 2*np.pi, n),
-            )
+            VonMisesStrandDistribution(
+                sizex, sizey, direction_angle, direction_spread, seed
+            ),
         ),
         StrandDensityCrosslinkDistributer(
             StrandDensityCrosslinkDistributerParameters(
@@ -104,6 +100,56 @@ def ISV_network(
         seed=seed,
     )
     return nt.generate()
+
+
+def ISV_network(
+    sizex,
+    sizey,
+    number_of_beads_per_strand,
+    number_of_strands,
+    contour_length_of_strand,
+    crosslink_max_r,
+    maximal_number_of_initial_crosslinks,
+    crosslink_bin_size,
+    spread_xaxis=1.0,
+    seed=None,
+    fix_boundary=None,
+) -> Network:
+    rng = np.random.default_rng(seed)
+    if fix_boundary:
+        domain = DomainParameters(sizex, sizey, fix_boundary=fix_boundary)
+    else:
+        domain = DomainParameters(
+            sizex, sizey, fix_boundary_north=True, fix_boundary_south=True
+        )
+    nt = NetworkType(
+        domain,
+        RandomStrandGenerator(
+            RandomStrandGeneratorParameters(
+                number_of_beads_per_strand=number_of_beads_per_strand,
+                number_of_strands=number_of_strands,
+                contour_length_of_strand=contour_length_of_strand,
+            ),
+            StrandDistributionGeneral(
+                lambda n: rng.normal(sizex * 0.5, spread_xaxis, n),
+                lambda n: rng.uniform(0, sizey, n),
+                lambda n: rng.uniform(0, 2 * np.pi, n),
+            ),
+        ),
+        StrandDensityCrosslinkDistributer(
+            StrandDensityCrosslinkDistributerParameters(
+                crosslink_max_r,
+                maximal_number_of_initial_crosslinks,
+                number_of_beads_per_strand,
+                number_of_strands,
+                crosslink_bin_size,
+            ),
+            seed=seed,
+        ),
+        seed=seed,
+    )
+    return nt.generate()
+
 
 def single_strand(
     sizex,
@@ -142,7 +188,14 @@ def single_strand(
     )
     return nt.generate()
 
-from .regular_network import RegularNetwork, RegularNetworkParameters, RegularCrosslinker
+
+from .regular_network import (
+    RegularNetwork,
+    RegularNetworkParameters,
+    RegularCrosslinker,
+)
+
+
 def regular(
     sizex,
     sizey,
@@ -151,13 +204,12 @@ def regular(
     fix_boundary,
 ):
     par = RegularNetworkParameters(
-        number_of_fibers_per_side*2,
-        number_of_beads_per_strand
+        number_of_fibers_per_side * 2, number_of_beads_per_strand
     )
     nt = NetworkType(
         DomainParameters(sizex, sizey, fix_boundary),
         RegularNetwork(par),
-        RegularCrosslinker(par)
+        RegularCrosslinker(par),
     )
 
     return nt.generate()
