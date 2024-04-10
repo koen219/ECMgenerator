@@ -101,7 +101,6 @@ def random_directed_network(
     )
     return nt.generate()
 
-
 def ISV_network(
     sizex,
     sizey,
@@ -149,6 +148,38 @@ def ISV_network(
         seed=seed,
     )
     return nt.generate()
+
+def laminin(sizex,sizey, amount_of_laminin, network: Network, seed=None):
+    assert len(network.beads_positions) >= amount_of_laminin
+    rng = np.random.default_rng(seed) 
+    free_indices = [k for k, typ in enumerate(network.beads_types) if typ == 'free']
+    free_beads_that_get_laminin_connection = list(rng.choice(
+        free_indices,
+        size=amount_of_laminin,
+        replace=False
+    ))
+    laminin_positions = [network.beads_positions[k] for k in free_beads_that_get_laminin_connection]
+    laminin_types = ['boundary'] * amount_of_laminin
+    laminin_ids = [len(network.beads_positions) + k for k in range(amount_of_laminin)]
+
+    laminin_bonds = list(zip(
+        free_beads_that_get_laminin_connection,
+        laminin_ids
+    ))
+
+    laminin_bonds_types = ['laminin'] * amount_of_laminin
+
+    network.details_of_bondtypes['laminin'] = {
+        'k': 0.0,# ignored later,
+        'r0': 0.0 # used
+    }
+
+    network.beads_positions.extend(laminin_positions)
+    network.beads_types.extend(laminin_types)
+
+    network.bonds_groups.extend(laminin_bonds)
+    network.bonds_types.extend(laminin_bonds_types)
+
 
 
 def single_strand(

@@ -1,4 +1,4 @@
-from ecmgen.networks import random_network, single_strand, single_spring
+from ecmgen.networks import random_network, single_strand, single_spring, laminin
 from ecmgen.network import Network
 
 import unittest
@@ -28,6 +28,70 @@ class TestAddingNetwork(unittest.TestCase):
         )
         self.assertEqual(
             len(net3.angle_groups), len(net1.angle_groups) + len(net2.angle_groups)
+        )
+
+import itertools
+class TestLaminin(unittest.TestCase):
+    def test_addingLaminin(self):
+        network = random_network(
+            sizex=200,
+            sizey=200,
+            number_of_beads_per_strand=9,
+            number_of_strands=10,
+            contour_length_of_strand=50,
+            crosslink_max_r=1.0,
+            maximal_number_of_initial_crosslinks=0,
+            crosslink_bin_size=1 / 3,
+            seed=10,
+        )
+        laminin(sizex=200,sizey=200,amount_of_laminin=10,network=network,seed=1)
+        self.assertSetEqual(
+            set(network.bonds_types),
+            set(["polymer", "laminin"])
+        )  
+        self.assertSetEqual(
+            set(network.beads_types),
+            set(["free", "boundary"])
+        )  
+        laminin_ids = [k for (k,typ) in enumerate(network.bonds_types) if typ == 'laminin']
+        self.assertEqual(len(laminin_ids), 10)
+
+        self.assertEqual(
+            len(network.beads_positions),
+            len(network.beads_types)
+        )
+
+        self.assertEqual(
+            len(network.bonds_groups),
+            len(network.bonds_types)
+        )
+
+    def test_particleids(self):
+        network = random_network(
+            sizex=200,
+            sizey=200,
+            number_of_beads_per_strand=9,
+            number_of_strands=10,
+            contour_length_of_strand=50,
+            crosslink_max_r=1.0,
+            maximal_number_of_initial_crosslinks=0,
+            crosslink_bin_size=1 / 3,
+            seed=10,
+        )
+        laminin(sizex=200,sizey=200,amount_of_laminin=10,network=network,seed=1)
+
+        self.assertLess(
+            len([bond[0] for bond in network.bonds_groups]),
+            len(network.beads_positions),
+        )
+        self.assertLess(
+            len([bond[1] for bond in network.bonds_groups]),
+            len(network.beads_positions),
+        )
+        
+        self.assertLess(
+            max(list(itertools.chain(*network.bonds_groups))),
+            len(network.beads_positions)
         )
 
 
