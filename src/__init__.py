@@ -7,4 +7,4 @@ from .networks import (
     random_directed_network,
     laminin,
 )
-from .network import Network
+from .network import Network, rotate_network

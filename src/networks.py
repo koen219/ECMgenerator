@@ -170,7 +170,7 @@ def laminin(sizex,sizey, amount_of_laminin, network: Network, seed=None):
     laminin_bonds_types = ['laminin'] * amount_of_laminin
 
     network.details_of_bondtypes['laminin'] = {
-        'k': 0.0,# ignored later,
+        'k': 1.0,# ratio of spring_k,
         'r0': 0.0 # used
     }
 
@@ -233,14 +233,19 @@ def regular(
     number_of_fibers_per_side,
     number_of_beads_per_strand,
     fix_boundary,
+    single_side=False
 ):
+    print("single_side = ", single_side)
     par = RegularNetworkParameters(
-        number_of_fibers_per_side * 2, number_of_beads_per_strand
+        number_of_fibers_per_side * 2, number_of_beads_per_strand,only_vertical_strands=single_side
     )
+
+    cross = RegularCrosslinker(par) if not single_side else None
+
     nt = NetworkType(
         DomainParameters(sizex, sizey, fix_boundary),
         RegularNetwork(par),
-        RegularCrosslinker(par),
+        cross,
     )
 
     return nt.generate()

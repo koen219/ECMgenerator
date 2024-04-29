@@ -50,21 +50,13 @@ class RegularNetwork(StrandGenerator):
 
         return network
 
-    def _rotate_network(self, pos):
-        theta = 0.0 #self._rotate_ecm
-        rotation_matrix = np.array([
-            [ np.cos(theta), -np.sin(theta) ],
-            [ np.sin(theta), np.cos(theta) ],
-            ])
-        pos[:,:2] = (rotation_matrix@(pos[:, :2].transpose())).transpose()
-        return pos
 
     def _vertical_coordinate(self, strand, bead, box_x, box_y):
         Lx = 0 #box_x / 2
         Ly = 0 #box_y / 2
         strands = self._par.number_of_strands
         beads = self._par.number_of_beads_per_strand
-        strands_per_direction = strands // 2
+        strands_per_direction = strands if self._vertical_coordinate else strands // 2
         x = (strand / strands_per_direction) * box_x - Lx
         y = (bead / beads) * box_y - Ly
         return x, y
@@ -163,7 +155,7 @@ class RegularCrosslinker(CrosslinkDistributer):
         selected_bonds = []
         crosslink_type = "crosslinker"
 
-        network.details_of_bondtypes[crosslink_type] = {'r0': 0, 'k': 0}
+        network.details_of_bondtypes[crosslink_type] = {'r0': 0, 'k': 1}
 
         assert self._num_beads == (
             self._num_strands // 2), "Can not crosslink non square grid"

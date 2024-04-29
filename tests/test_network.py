@@ -131,7 +131,6 @@ class TestStringMethods(unittest.TestCase):
         network = single_strand(
             200, 200, 50, 50, 3.141592653589793, beads, 1 * (beads - 1), None
         )
-        print(network.beads_positions)
         for i in range(beads):
             self.assertEqual(network.beads_positions[i][0], 50 + i)
             self.assertEqual(network.beads_positions[i][1], 50)

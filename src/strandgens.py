@@ -6,6 +6,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Tuple, List, Optional
 
+import logging
+_logger = logging.getLogger(__name__)
 
 class StrandGenerator(ABC):
     @abstractmethod
@@ -68,7 +70,7 @@ class RandomStrandGenerator(StrandGenerator):
             boundary_particles = pos[:, 0] < 0
             typeid[boundary_particles] = "boundary"
 
-        print("Fixed %s boundary particles" % np.sum(typeid == "boundary"))
+        _logger.debug("Fixed %s boundary particles" % np.sum(typeid == "boundary"))
 
         network.beads_types = typeid.tolist()
 

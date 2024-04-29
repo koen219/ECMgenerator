@@ -7,6 +7,9 @@ from .crosslink_distributors import CrosslinkDistributer
 
 from .network import Network
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class NetworkType:
     """Config class of the network. Used to generate a Network class."""
@@ -20,13 +23,10 @@ class NetworkType:
     ):
         self._strand_generator: StrandGenerator = strandgenerator
         self._crosslink_distributor = crosslink_distributor
-
         self._rng = np.random.default_rng(seed=seed)
-
         self._network = Network(domain)
 
-        self._network = Network(domain)
-
+        logger.info("Initiate NetworkType with %s and crosslinked with %s" % (strandgenerator,crosslink_distributor))
     def generate(self) -> Network:
         """Generates a network from the generators. Throws exceptions when some network are not neatly generated."""
         self._strand_generator.build_strands(self._network)

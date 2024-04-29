@@ -29,7 +29,6 @@ class _CrosslinkQuantizer:
             return 0
 
         r = round((R / self._max) * self._num)
-        print(r, R)
 
         return self.types[r - 1]
 
@@ -76,7 +75,7 @@ class StrandDensityCrosslinkDistributer(CrosslinkDistributer):
 
             network.details_of_bondtypes[typ] = {
                 "r0": self._quantizer.spring_options(0.0)[typ]["r0"],
-                "k": 0,
+                "k": 1,
             }
 
         return list(zip(selected_bonds, selected_types))

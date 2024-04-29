@@ -3,6 +3,9 @@ from typing import Optional, List, Tuple, Dict, Set
 from .network import Network
 from .network import BOND, BONDTYPE, BEADID, FIBREID, BONDID, Network
 
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class CrosslinkDistributer(ABC):
     def distribute_crosslinkers(self, network: Network):
@@ -44,15 +47,12 @@ class TipToTailCrosslinkDistributer(CrosslinkDistributer):
         selected_bonds = []
         crosslink_type = "crosslinker"
         
-        network.details_of_bondtypes[crosslink_type] = {'r0': 0, 'k': 0}
+        network.details_of_bondtypes[crosslink_type] = {'r0': 0, 'k': 1}
 
-        print(f"{self._num_strands=}")
-        print(f"{self._num_beads_per_strand=}")
         for i in range(self._num_strands-1):
             b0 = self._num_beads_per_strand * i + self._num_beads_per_strand - 1
             b1 = b0 + 1
             selected_bonds.append( ((b0, b1), crosslink_type))
-            print(b0, b1)
             
         return selected_bonds
 
