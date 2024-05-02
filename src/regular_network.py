@@ -56,7 +56,7 @@ class RegularNetwork(StrandGenerator):
         Ly = 0 #box_y / 2
         strands = self._par.number_of_strands
         beads = self._par.number_of_beads_per_strand
-        strands_per_direction = strands if self._vertical_coordinate else strands // 2
+        strands_per_direction = strands if self._par.only_vertical_strands else strands // 2
         x = (strand / strands_per_direction) * box_x - Lx
         y = (bead / beads) * box_y - Ly
         return x, y
@@ -88,7 +88,7 @@ class RegularNetwork(StrandGenerator):
 
                 if strand < strands_per_direction:  # first half vertical
                     x, y = self._vertical_coordinate(strand, bead, domain.sizex, domain.sizey)
-                else:
+                else: # if only vertical strands, this part does not get activated
                     x, y = self._horizonal_coordinate(strand, bead, domain.sizex, domain.sizey)
 
                 if bead == 0 or bead == self._par.number_of_beads_per_strand - 1:  # begin and endpoints are fixed
@@ -96,12 +96,9 @@ class RegularNetwork(StrandGenerator):
                 else:
                     typ = 'free'
                 pos.append([x,y])
-#                pos[index, 0] = x
-#                pos[index, 1] = y
                 typeid.append(typ)
 
         return pos, typeid
-    # Bond generation
 
     def _bond_gen(self, domain):
         beads = self._par.number_of_beads_per_strand

@@ -237,7 +237,7 @@ def regular(
 ):
     print("single_side = ", single_side)
     par = RegularNetworkParameters(
-        number_of_fibers_per_side * 2, number_of_beads_per_strand,only_vertical_strands=single_side
+        number_of_fibers_per_side, number_of_beads_per_strand,only_vertical_strands=single_side
     )
 
     cross = RegularCrosslinker(par) if not single_side else None
