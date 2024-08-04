@@ -149,25 +149,65 @@ def ISV_network(
     )
     return nt.generate()
 
-def laminin(sizex,sizey, amount_of_laminin, network: Network, seed=None):
-    assert len(network.beads_positions) >= amount_of_laminin
+
+def _random_laminin_positions(seed, beads_types, amount_of_laminin):
     rng = np.random.default_rng(seed) 
-    free_indices = [k for k, typ in enumerate(network.beads_types) if typ == 'free']
-    free_beads_that_get_laminin_connection = list(rng.choice(
+    free_indices = [k for k, typ in enumerate(beads_types) if typ == 'free']
+    list(rng.choice(
         free_indices,
         size=amount_of_laminin,
         replace=False
     ))
+
+from scipy.stats import truncnorm
+from collections import defaultdict
+import itertools
+
+def laminin(sizex,sizey, amount_of_laminin, network: Network, seed=None,
+            x_dist_spread = 1.0,
+            y_dist_spread = 0.0, 
+            ):
+    assert len(network.beads_positions) >= amount_of_laminin
+
+    pixel_to_bead = defaultdict(list)
+    x_pos = []
+    y_pos = []
+    for k, pos in enumerate(network.beads_positions):
+        nx, ny = int(pos[0]), int(pos[1])
+        pixel_to_bead[nx,ny].append(k)
+        x_pos.append(nx)
+        y_pos.append(ny)
+
+    locx = sizex // 2
+    a_x = (0 - locx) / x_dist_spread
+    b_x = (sizex - locx) / x_dist_spread
+    x_pos = truncnorm.rvs(a_x, b_x, loc=locx,scale=x_dist_spread, size = amount_of_laminin)
+
+    if y_dist_spread > 0:
+        locy = sizey // 2
+        a_y = (0 - locy) / y_dist_spread
+        b_y = (sizey - locy) / y_dist_spread
+        y_pos = truncnorm.rvs(a_y, b_y, loc=locy,scale=y_dist_spread, size = amount_of_laminin)
+    else:
+        y_pos = np.random.uniform(0, sizey,size= amount_of_laminin)
+
+    # This can be smaller than amount_of_laminin
+    free_beads_that_get_laminin_connection = itertools.chain(*[
+        pixel_to_bead[int(x),int(y)] for (x,y) in zip(x_pos, y_pos) if
+        (int(x), int(y)) in pixel_to_bead.keys()
+    ])
+
+    # free_beads_that_get_laminin_connection = _random_laminin_positions(seed, network.beads_types, amount_of_laminin)
     laminin_positions = [network.beads_positions[k] for k in free_beads_that_get_laminin_connection]
-    laminin_types = ['boundary'] * amount_of_laminin
-    laminin_ids = [len(network.beads_positions) + k for k in range(amount_of_laminin)]
+    laminin_types = ['boundary'] * len(laminin_positions)
+    laminin_ids = [len(network.beads_positions) + k for k, _ in enumerate(laminin_positions)]
 
     laminin_bonds = list(zip(
         free_beads_that_get_laminin_connection,
         laminin_ids
     ))
 
-    laminin_bonds_types = ['laminin'] * amount_of_laminin
+    laminin_bonds_types = ['laminin'] * len(laminin_bonds)
 
     network.details_of_bondtypes['laminin'] = {
         'k': 1.0,# ratio of spring_k,
