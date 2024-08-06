@@ -167,7 +167,6 @@ def laminin(sizex,sizey, amount_of_laminin, network: Network, seed=None,
             x_dist_spread = 1.0,
             y_dist_spread = 0.0, 
             ):
-    assert len(network.beads_positions) >= amount_of_laminin
 
     pixel_to_bead = defaultdict(list)
     x_pos = []
