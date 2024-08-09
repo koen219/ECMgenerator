@@ -163,6 +163,57 @@ from scipy.stats import truncnorm
 from collections import defaultdict
 import itertools
 
+import matplotlib.pyplot as plt
+def hexagonal(sizex, sizey, size):
+    domain = DomainParameters(sizex, sizey, fix_boundary=True)
+
+    horizontal_spacing = size * (3.0 / 2.0)
+    vertical_spacing = size * (np.sqrt(3) / 2.0)
+
+    num_x = int(sizex / horizontal_spacing)
+    num_y = int(sizey / vertical_spacing)
+
+    coords = []
+    c = np.sqrt(3) / 2
+    s = 0.5
+
+    bonds = []
+
+    number_of_horizontal_beads = 2 * num_x + 1
+    for r in range(0,num_y,2):
+        for i in range(2):
+            for q in range(num_x):
+                x = size * np.sqrt(3)*q + np.sqrt(3)*0.5 * (r%2)
+                y = size * 3*0.5 * r
+                index = len(coords)
+                sign = -1 if i%2 ==0 else 1
+
+                if q == 0:
+                    coords.extend([
+                        (x-c*size,y+sign*s*size), # 0
+                    ])
+                    bonds.append([index, index+1])
+                    index+=1
+                else:
+                    bonds.append([index-1,index])
+
+                coords.extend([
+                    (x,y+sign*1*size), # 1
+                    (x+c*size,y+sign*s*size) # 2
+                ])
+                bonds.append([index, index+1])
+                # bonds.append([index+1, index+2])
+        if i%2 == 1:
+            for q in range(0,num_x):
+                index = len(coords) - number_of_horizontal_beads + 2*q 
+                if q == 0:
+                    bonds.append([index - number_of_horizontal_beads, index])
+                bonds.append([index - number_of_horizontal_beads + 2, index+2])
+
+    return Network(domain, coords, [0] * len(coords), bonds, [], [], [])
+
+
+
 def laminin(sizex,sizey, amount_of_laminin, network: Network, seed=None,
             x_dist_spread = 1.0,
             y_dist_spread = 0.0, 

@@ -6,5 +6,6 @@ from .networks import (
     regular,
     random_directed_network,
     laminin,
+    hexagonal,
 )
 from .network import Network, rotate_network
