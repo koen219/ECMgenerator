@@ -210,7 +210,7 @@ def hexagonal(sizex, sizey, size):
                     bonds.append([index - number_of_horizontal_beads, index])
                 bonds.append([index - number_of_horizontal_beads + 2, index+2])
 
-    return Network(domain, coords, [0] * len(coords), bonds, [], [], [])
+    return Network(domain, coords, ['free'] * len(coords), bonds, ['polymer'] * len(bonds), [[0,1,2]], [0])
 
 
 
