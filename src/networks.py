@@ -167,13 +167,16 @@ import matplotlib.pyplot as plt
 def hexagonal(sizex, sizey, size):
     domain = DomainParameters(sizex, sizey, fix_boundary=True)
 
-    horizontal_spacing = size * (3.0 / 2.0)
-    vertical_spacing = size * (np.sqrt(3) / 2.0)
+    horizontal_spacing = np.sqrt(3)* size#  * (3.0 / 2.0)
+    # vertical_spacing = size * (3.0/ 2.0)
+    # vertical_spacing = size * (np.sqrt(3) / 2.0)
+    vertical_spacing = size * (3.0 /2.0)
 
-    num_x = int(sizex / horizontal_spacing)
-    num_y = int(sizey / vertical_spacing)
+    num_x = int(sizex / horizontal_spacing) + 1
+    num_y = int(sizey / vertical_spacing) + 1
 
     coords = []
+    ptypes = []
     c = np.sqrt(3) / 2
     s = 0.5
 
@@ -192,6 +195,7 @@ def hexagonal(sizex, sizey, size):
                     coords.extend([
                         (x-c*size,y+sign*s*size), # 0
                     ])
+                    ptypes.append('boundary')
                     bonds.append([index, index+1])
                     index+=1
                 else:
@@ -201,16 +205,29 @@ def hexagonal(sizex, sizey, size):
                     (x,y+sign*1*size), # 1
                     (x+c*size,y+sign*s*size) # 2
                 ])
+                if (r == 0 and i == 0) or (r == num_y - 2 and i == 1):
+                    ptypes.append('boundary')
+                    ptypes.append('boundary')
+                else:
+                    ptypes.append('free')
+                    if (q==num_x - 1):
+                        ptypes.append('boundary')
+                    else:
+                        ptypes.append('free')
                 bonds.append([index, index+1])
                 # bonds.append([index+1, index+2])
-        if i%2 == 1:
-            for q in range(0,num_x):
-                index = len(coords) - number_of_horizontal_beads + 2*q 
-                if q == 0:
-                    bonds.append([index - number_of_horizontal_beads, index])
-                bonds.append([index - number_of_horizontal_beads + 2, index+2])
-
-    return Network(domain, coords, ['free'] * len(coords), bonds, ['polymer'] * len(bonds), [[0,1,2]], [0])
+            if i%2 == 1:
+                for q in range(0,num_x):
+                    index = len(coords) - number_of_horizontal_beads + 2*q 
+                    if q == 0:
+                        bonds.append([index - number_of_horizontal_beads, index])
+                    bonds.append([index - number_of_horizontal_beads + 2, index+2])
+            if r>0 and i %2 == 0:
+                for q in range(0, num_x):
+                    index = len(coords) - number_of_horizontal_beads + 2 * q + 1
+                    bonds.append([index, index - number_of_horizontal_beads])
+    assert len(ptypes) == len(coords)
+    return Network(domain, coords, ptypes, bonds, ['polymer'] * len(bonds), [[0,1,2]], [0])
 
 
 
