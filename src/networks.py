@@ -74,9 +74,21 @@ def random_directed_network(
     crosslink_bin_size,
     seed=None,
     fix_boundary=False,
+    fix_boundary_north=False,
+    fix_boundary_south=False,
+    fix_boundary_east=False,
+    fix_boundary_west=False,
 ) -> Network:
     nt = NetworkType(
-        DomainParameters(sizex, sizey, fix_boundary=fix_boundary),
+        DomainParameters(
+            sizex,
+            sizey,
+            fix_boundary=fix_boundary,
+            fix_boundary_east=fix_boundary_east,
+            fix_boundary_north=fix_boundary_north,
+            fix_boundary_west=fix_boundary_west,
+            fix_boundary_south=fix_boundary_south,
+        ),
         RandomStrandGenerator(
             RandomStrandGeneratorParameters(
                 number_of_beads_per_strand=number_of_beads_per_strand,
@@ -100,6 +112,7 @@ def random_directed_network(
         seed=seed,
     )
     return nt.generate()
+
 
 def ISV_network(
     sizex,
@@ -151,26 +164,25 @@ def ISV_network(
 
 
 def _random_laminin_positions(seed, beads_types, amount_of_laminin):
-    rng = np.random.default_rng(seed) 
-    free_indices = [k for k, typ in enumerate(beads_types) if typ == 'free']
-    list(rng.choice(
-        free_indices,
-        size=amount_of_laminin,
-        replace=False
-    ))
+    rng = np.random.default_rng(seed)
+    free_indices = [k for k, typ in enumerate(beads_types) if typ == "free"]
+    list(rng.choice(free_indices, size=amount_of_laminin, replace=False))
+
 
 from scipy.stats import truncnorm
 from collections import defaultdict
 import itertools
 
 import matplotlib.pyplot as plt
+
+
 def hexagonal(sizex, sizey, size):
     domain = DomainParameters(sizex, sizey, fix_boundary=True)
 
-    horizontal_spacing = np.sqrt(3)* size#  * (3.0 / 2.0)
+    horizontal_spacing = np.sqrt(3) * size  #  * (3.0 / 2.0)
     # vertical_spacing = size * (3.0/ 2.0)
     # vertical_spacing = size * (np.sqrt(3) / 2.0)
-    vertical_spacing = size * (3.0 /2.0)
+    vertical_spacing = size * (3.0 / 2.0)
 
     num_x = int(sizex / horizontal_spacing) + 1
     num_y = int(sizey / vertical_spacing) + 1
@@ -183,102 +195,120 @@ def hexagonal(sizex, sizey, size):
     bonds = []
 
     number_of_horizontal_beads = 2 * num_x + 1
-    for r in range(0,num_y,2):
+    for r in range(0, num_y, 2):
         for i in range(2):
             for q in range(num_x):
-                x = size * np.sqrt(3)*q + np.sqrt(3)*0.5 * (r%2)
-                y = size * 3*0.5 * r
+                x = size * np.sqrt(3) * q + np.sqrt(3) * 0.5 * (r % 2)
+                y = size * 3 * 0.5 * r
                 index = len(coords)
-                sign = -1 if i%2 ==0 else 1
+                sign = -1 if i % 2 == 0 else 1
 
                 if q == 0:
-                    coords.extend([
-                        (x-c*size,y+sign*s*size), # 0
-                    ])
-                    ptypes.append('boundary')
-                    bonds.append([index, index+1])
-                    index+=1
+                    coords.extend(
+                        [
+                            (x - c * size, y + sign * s * size),  # 0
+                        ]
+                    )
+                    ptypes.append("boundary")
+                    bonds.append([index, index + 1])
+                    index += 1
                 else:
-                    bonds.append([index-1,index])
+                    bonds.append([index - 1, index])
 
-                coords.extend([
-                    (x,y+sign*1*size), # 1
-                    (x+c*size,y+sign*s*size) # 2
-                ])
+                coords.extend(
+                    [
+                        (x, y + sign * 1 * size),  # 1
+                        (x + c * size, y + sign * s * size),  # 2
+                    ]
+                )
                 if (r == 0 and i == 0) or (r == num_y - 2 and i == 1):
-                    ptypes.append('boundary')
-                    ptypes.append('boundary')
+                    ptypes.append("boundary")
+                    ptypes.append("boundary")
                 else:
-                    ptypes.append('free')
-                    if (q==num_x - 1):
-                        ptypes.append('boundary')
+                    ptypes.append("free")
+                    if q == num_x - 1:
+                        ptypes.append("boundary")
                     else:
-                        ptypes.append('free')
-                bonds.append([index, index+1])
+                        ptypes.append("free")
+                bonds.append([index, index + 1])
                 # bonds.append([index+1, index+2])
-            if i%2 == 1:
-                for q in range(0,num_x):
-                    index = len(coords) - number_of_horizontal_beads + 2*q 
+            if i % 2 == 1:
+                for q in range(0, num_x):
+                    index = len(coords) - number_of_horizontal_beads + 2 * q
                     if q == 0:
                         bonds.append([index - number_of_horizontal_beads, index])
-                    bonds.append([index - number_of_horizontal_beads + 2, index+2])
-            if r>0 and i %2 == 0:
+                    bonds.append([index - number_of_horizontal_beads + 2, index + 2])
+            if r > 0 and i % 2 == 0:
                 for q in range(0, num_x):
                     index = len(coords) - number_of_horizontal_beads + 2 * q + 1
                     bonds.append([index, index - number_of_horizontal_beads])
     assert len(ptypes) == len(coords)
-    return Network(domain, coords, ptypes, bonds, ['polymer'] * len(bonds), [[0,1,2]], [0])
+    return Network(
+        domain, coords, ptypes, bonds, ["polymer"] * len(bonds), [[0, 1, 2]], [0]
+    )
 
 
-
-def laminin(sizex,sizey, amount_of_laminin, network: Network, seed=None,
-            x_dist_spread = 1.0,
-            y_dist_spread = 0.0, 
-            ):
+def laminin(
+    sizex,
+    sizey,
+    amount_of_laminin,
+    network: Network,
+    seed=None,
+    x_dist_spread=1.0,
+    y_dist_spread=0.0,
+):
 
     pixel_to_bead = defaultdict(list)
     x_pos = []
     y_pos = []
     for k, pos in enumerate(network.beads_positions):
         nx, ny = int(pos[0]), int(pos[1])
-        pixel_to_bead[nx,ny].append(k)
+        pixel_to_bead[nx, ny].append(k)
         x_pos.append(nx)
         y_pos.append(ny)
 
     locx = sizex // 2
     a_x = (0 - locx) / x_dist_spread
     b_x = (sizex - locx) / x_dist_spread
-    x_pos = truncnorm.rvs(a_x, b_x, loc=locx,scale=x_dist_spread, size = amount_of_laminin)
+    x_pos = truncnorm.rvs(
+        a_x, b_x, loc=locx, scale=x_dist_spread, size=amount_of_laminin
+    )
 
     if y_dist_spread > 0:
         locy = sizey // 2
         a_y = (0 - locy) / y_dist_spread
         b_y = (sizey - locy) / y_dist_spread
-        y_pos = truncnorm.rvs(a_y, b_y, loc=locy,scale=y_dist_spread, size = amount_of_laminin)
+        y_pos = truncnorm.rvs(
+            a_y, b_y, loc=locy, scale=y_dist_spread, size=amount_of_laminin
+        )
     else:
-        y_pos = np.random.uniform(0, sizey,size= amount_of_laminin)
+        y_pos = np.random.uniform(0, sizey, size=amount_of_laminin)
 
     # This can be smaller than amount_of_laminin
-    free_beads_that_get_laminin_connection = itertools.chain(*[
-        pixel_to_bead[int(x),int(y)] for (x,y) in zip(x_pos, y_pos) if
-        (int(x), int(y)) in pixel_to_bead.keys()
-    ])
+    free_beads_that_get_laminin_connection = itertools.chain(
+        *[
+            pixel_to_bead[int(x), int(y)]
+            for (x, y) in zip(x_pos, y_pos)
+            if (int(x), int(y)) in pixel_to_bead.keys()
+        ]
+    )
 
     # free_beads_that_get_laminin_connection = _random_laminin_positions(seed, network.beads_types, amount_of_laminin)
-    laminin_positions = [network.beads_positions[k] for k in free_beads_that_get_laminin_connection]
-    laminin_types = ['boundary'] * len(laminin_positions)
-    laminin_ids = [len(network.beads_positions) + k for k, _ in enumerate(laminin_positions)]
+    laminin_positions = [
+        network.beads_positions[k] for k in free_beads_that_get_laminin_connection
+    ]
+    laminin_types = ["boundary"] * len(laminin_positions)
+    laminin_ids = [
+        len(network.beads_positions) + k for k, _ in enumerate(laminin_positions)
+    ]
 
-    laminin_bonds = list(zip(
-        free_beads_that_get_laminin_connection,
-        laminin_ids
-    ))
+    laminin_bonds = list(zip(free_beads_that_get_laminin_connection, laminin_ids))
 
-    laminin_bonds_types = ['laminin'] * len(laminin_bonds)
+    laminin_bonds_types = ["laminin"] * len(laminin_bonds)
 
-    network.details_of_bondtypes['laminin'] = {
-        'k': 1.0,# ratio of spring_k,
-        'r0': 0.0 # used
+    network.details_of_bondtypes["laminin"] = {
+        "k": 1.0,  # ratio of spring_k,
+        "r0": 0.0,  # used
     }
 
     network.beads_positions.extend(laminin_positions)
@@ -286,7 +316,6 @@ def laminin(sizex,sizey, amount_of_laminin, network: Network, seed=None,
 
     network.bonds_groups.extend(laminin_bonds)
     network.bonds_types.extend(laminin_bonds_types)
-
 
 
 def single_strand(
@@ -340,11 +369,13 @@ def regular(
     number_of_fibers_per_side,
     number_of_beads_per_strand,
     fix_boundary,
-    single_side=False
+    single_side=False,
 ):
     print("single_side = ", single_side)
     par = RegularNetworkParameters(
-        number_of_fibers_per_side, number_of_beads_per_strand,only_vertical_strands=single_side
+        number_of_fibers_per_side,
+        number_of_beads_per_strand,
+        only_vertical_strands=single_side,
     )
 
     cross = RegularCrosslinker(par) if not single_side else None
