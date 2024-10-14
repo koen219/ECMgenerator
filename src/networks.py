@@ -221,7 +221,7 @@ def hexagonal(sizex, sizey, size):
                         (x + c * size, y + sign * s * size),  # 2
                     ]
                 )
-                if (r == 0 and i == 0) or (r == num_y - 2 and i == 1):
+                if (r == 0 and i == 0) or (r == num_y - 2 and i == 1) or (r == num_y - 1 and i == 1):
                     ptypes.append("boundary")
                     ptypes.append("boundary")
                 else:
