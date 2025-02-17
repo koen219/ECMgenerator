@@ -3,6 +3,7 @@ from .network import BOND, BONDTYPE, BEADID, FIBREID, BONDID, Network
 from .binner import FiberBin
 from .parameters import StrandDensityCrosslinkDistributerParameters
 from scipy.signal import convolve2d
+from scipy.special import binom
 
 import numpy as np
 from typing import Optional, List, Tuple, Dict, Set
@@ -240,3 +241,91 @@ class StrandDensityCrosslinkDistributer(CrosslinkDistributer):
         # Take this index and adjust it so it matches the original array
         adjusted_index = np.unravel_index(sample_index, array.shape)
         return list(zip(*adjusted_index))  # type: ignore
+
+
+class StrandDensityCrosslinkDistributerFast(CrosslinkDistributer):
+    def __init__(
+        self, par: StrandDensityCrosslinkDistributerParameters, seed: Optional[int]
+    ):
+        self._par = par
+        self._rng = np.random.default_rng(seed)
+        self._binner: FiberBin
+
+        self._quantizer = _CrosslinkQuantizer(self._par.crosslink_max_r, 10)
+
+        # self.spring_options = self._quantizer.spring_options(self.par.crosslink_k)
+        # {'crosslinker': dict(
+        #    k=par.crosslink_k, r0=par.crosslink_r0)}
+
+    def same_fiber(self, bead1, bead2) -> bool:
+        b = self._par.number_of_beads_per_strand
+        return math.floor(bead1 / b) == math.floor(bead2 / b)
+
+    def select_bonds(self, network: Network) -> List[Tuple[BOND, BONDTYPE]]:
+        bin = self._binNetwork(network)
+        pos = np.asarray(network.beads_positions)
+
+        bonds, types = list(), list()
+
+        number_of_combinations = sum(
+            binom(len(ids), 2) for ids in bin.values() if len(ids) >= 2
+        )
+        if number_of_combinations == 0:
+            return []
+        prob = self._par.maximal_number_of_initial_crosslinks / number_of_combinations
+        print(
+            self._par.maximal_number_of_initial_crosslinks, number_of_combinations, prob
+        )
+        for ids in bin.values():
+            if len(ids) < 2:
+                continue
+            for p1, p2 in itertools.combinations(ids, 2):
+                if self.same_fiber(p1, p2):
+                    continue
+                # if self._rng.random() > prob:
+                #     continue
+                new_bond = (p1, p2)
+                r = np.linalg.norm(pos[p1] - pos[p2])
+                bond_type = self._quantizer.computetype(float(r))
+
+                bonds.append(new_bond)
+                types.append(bond_type)
+
+        for typ in set(types):
+            network.details_of_bondtypes[typ] = {
+                "r0": self._quantizer.spring_options(0.0)[typ]["r0"],
+                "k": 1,
+            }
+
+        return list(zip(bonds, types))
+
+    def _binNetwork(self, network: Network):
+        """
+        Bins 2D positions into a dictionary.
+
+        Args:
+            positions (numpy.ndarray): An Nx2 array of positions.
+            bin_size (float): Size of each bin.
+            domain_size (tuple): Maximum x, y, z coordinates defining the domain.
+
+        Returns:
+            dict: A dictionary where keys are bin indices (tuples) and values are lists of position indices.
+        """
+        positions = np.asarray(network.beads_positions)
+        domain_size = (network.domain.sizex, network.domain.sizey)
+        bin_size = self._par.crosslink_bin_size
+
+        # Filter out positions outside the domain_size
+        within_domain = np.all((positions >= 0) & (positions < domain_size), axis=1)
+        positions = positions[within_domain]
+        valid_indices = np.where(within_domain)[0]
+
+        # Compute bin indices for each valid position
+        bin_indices = (positions // bin_size).astype(int)
+
+        # Group positions by bins using a dictionary
+        bins = defaultdict(list)
+        for idx, bin_idx in zip(valid_indices, bin_indices):
+            bins[tuple(bin_idx)].append(idx)
+
+        return bins

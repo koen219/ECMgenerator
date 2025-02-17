@@ -12,7 +12,10 @@ from .parameters import (
     RandomStrandGeneratorParameters,
     StrandDensityCrosslinkDistributerParameters,
 )
-from .density_crosslinker import StrandDensityCrosslinkDistributer
+from .density_crosslinker import (
+    StrandDensityCrosslinkDistributer,
+    StrandDensityCrosslinkDistributerFast,
+)
 from .parameters import (
     DomainParameters,
     RandomStrandGeneratorParameters,
@@ -47,6 +50,59 @@ def random_network(
             UniformStrandDistribution(sizex, sizey, seed),
         ),
         StrandDensityCrosslinkDistributer(
+            StrandDensityCrosslinkDistributerParameters(
+                crosslink_max_r,
+                maximal_number_of_initial_crosslinks,
+                number_of_beads_per_strand,
+                number_of_strands,
+                crosslink_bin_size,
+            ),
+            seed=seed,
+        ),
+        seed=seed,
+    )
+    return nt.generate()
+
+
+def fibrin_network(
+    sizex,
+    sizey,
+    number_of_beads_per_strand,
+    number_of_strands,
+    direction_spread,
+    direction_angle,
+    contour_length_of_strand,
+    crosslink_max_r,
+    maximal_number_of_initial_crosslinks,
+    crosslink_bin_size,
+    seed=None,
+    fix_boundary=False,
+    fix_boundary_north=False,
+    fix_boundary_south=False,
+    fix_boundary_east=False,
+    fix_boundary_west=False,
+) -> Network:
+    nt = NetworkType(
+        DomainParameters(
+            sizex,
+            sizey,
+            fix_boundary=fix_boundary,
+            fix_boundary_east=fix_boundary_east,
+            fix_boundary_north=fix_boundary_north,
+            fix_boundary_west=fix_boundary_west,
+            fix_boundary_south=fix_boundary_south,
+        ),
+        RandomStrandGenerator(
+            RandomStrandGeneratorParameters(
+                number_of_beads_per_strand=number_of_beads_per_strand,
+                number_of_strands=number_of_strands,
+                contour_length_of_strand=contour_length_of_strand,
+            ),
+            VonMisesStrandDistribution(
+                sizex, sizey, direction_angle, direction_spread, seed
+            ),
+        ),
+        StrandDensityCrosslinkDistributerFast(
             StrandDensityCrosslinkDistributerParameters(
                 crosslink_max_r,
                 maximal_number_of_initial_crosslinks,
@@ -221,7 +277,11 @@ def hexagonal(sizex, sizey, size):
                         (x + c * size, y + sign * s * size),  # 2
                     ]
                 )
-                if (r == 0 and i == 0) or (r == num_y - 2 and i == 1) or (r == num_y - 1 and i == 1):
+                if (
+                    (r == 0 and i == 0)
+                    or (r == num_y - 2 and i == 1)
+                    or (r == num_y - 1 and i == 1)
+                ):
                     ptypes.append("boundary")
                     ptypes.append("boundary")
                 else:

@@ -7,5 +7,6 @@ from .networks import (
     random_directed_network,
     laminin,
     hexagonal,
+    fibrin_network,
 )
 from .network import Network, rotate_network
