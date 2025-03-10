@@ -11,32 +11,7 @@ from abc import ABC, abstractmethod
 import math
 import itertools
 from collections import defaultdict
-
-
-class _CrosslinkQuantizer:
-    def __init__(self, crosslink_max_r, number):
-        self._max = crosslink_max_r
-        self._num = number
-
-        quantizations = np.linspace(0, self._max, self._num)
-
-        self.types = [f"cross_{i}" for i in range(self._num)]
-        self.types_r0 = [q for q in quantizations]
-
-    def computetype(self, R: float):
-        if R > self._max:
-            return self.types[-1]
-        if R < 0:
-            return 0
-
-        r = round((R / self._max) * self._num)
-
-        return self.types[r - 1]
-
-    def spring_options(self, stiffness):
-        return {
-            typ: dict(r0=r0, k=stiffness) for typ, r0 in zip(self.types, self.types_r0)
-        }
+from .crosslink_distributors import _CrosslinkQuantizer
 
 
 class StrandDensityCrosslinkDistributer(CrosslinkDistributer):

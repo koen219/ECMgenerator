@@ -113,6 +113,7 @@ def fibrin_network(
             seed=seed,
         ),
         seed=seed,
+        crosslink_angles=True,
     )
     return nt.generate()
 
