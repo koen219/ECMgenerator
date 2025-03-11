@@ -109,7 +109,7 @@ class CrosslinkDistributer(ABC):
                 angles_to_add.append(angle)
                 thetas_to_add.append(theta)
 
-        quantizer = _CrosslinkQuantizer(np.pi, 20)
+        quantizer = _CrosslinkQuantizer(np.pi, 40)
         angle_types = list()
         for theta in thetas_to_add:
             typ_name = quantizer.computetype(theta)

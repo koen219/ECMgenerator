@@ -16,6 +16,7 @@ from .density_crosslinker import (
     StrandDensityCrosslinkDistributer,
     StrandDensityCrosslinkDistributerFast,
 )
+from .crosslink_distributors import DeterministicCrosslinkDistributer
 from .parameters import (
     DomainParameters,
     RandomStrandGeneratorParameters,
@@ -483,3 +484,18 @@ def single_spring(
         seed=seed,
     )
     return nt.generate()
+
+
+def two_crosslinked_strands(r0):
+    beads = 4
+    strand1 = single_strand(10, 10, 5, 5, 0, beads, (beads - 1) * r0)
+    strand2 = single_strand(10, 10, 5, 4, 0, beads, (beads - 1) * r0)
+    net = strand1 + strand2
+
+    crosslinker = DeterministicCrosslinkDistributer([[1, 5]])
+    crosslinker.distribute_crosslinkers(net)
+    crosslinker.add_crosslink_angles(net)
+
+    print(net)
+
+    return net

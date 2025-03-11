@@ -8,5 +8,6 @@ from .networks import (
     laminin,
     hexagonal,
     fibrin_network,
+    two_crosslinked_strands,
 )
 from .network import Network, rotate_network
