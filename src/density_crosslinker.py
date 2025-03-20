@@ -257,8 +257,8 @@ class StrandDensityCrosslinkDistributerFast(CrosslinkDistributer):
             for p1, p2 in itertools.combinations(ids, 2):
                 if self.same_fiber(p1, p2):
                     continue
-                # if self._rng.random() > prob:
-                #     continue
+                if self._rng.random() > prob:
+                    continue
                 new_bond = (p1, p2)
                 r = np.linalg.norm(pos[p1] - pos[p2])
                 bond_type = self._quantizer.computetype(float(r))

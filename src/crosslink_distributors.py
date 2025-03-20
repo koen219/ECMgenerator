@@ -103,19 +103,32 @@ class CrosslinkDistributer(ABC):
                 if norm_v_a == 0 or norm_v_c == 0:
                     continue
 
+                if norm_v_a < 1.0 or norm_v_c == 1.0:
+                    continue
+                argument = np.dot(v_a, v_c) / (norm_v_a * norm_v_c)
+                if argument < -1.0:
+                    argument = -1.0
+                if argument > 1.0:
+                    argument = 1.0
+
                 theta = np.arccos(np.dot(v_a, v_c) / (norm_v_a * norm_v_c))
                 angle = (a, b, c)
+
+                if theta > np.pi * 0.5:
+                    continue
 
                 angles_to_add.append(angle)
                 thetas_to_add.append(theta)
 
-        quantizer = _CrosslinkQuantizer(np.pi, 40)
+        quantizer = _CrosslinkQuantizer(np.pi * 0.5, 20)
         angle_types = list()
         for theta in thetas_to_add:
             typ_name = quantizer.computetype(theta)
+            t0 = quantizer.spring_options(0)[typ_name]["r0"]
+            print(f"{theta=} -> type={typ_name} with {t0=}")
             angle_types.append("angle_" + typ_name)
             network.details_of_angletypes["angle_" + typ_name] = {
-                "t0": quantizer.spring_options(0)[typ_name]["r0"],
+                "t0": t0,
                 "k": 1,
             }
         print(network.details_of_angletypes)
