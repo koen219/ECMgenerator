@@ -82,6 +82,7 @@ def fibrin_network(
     fix_boundary_south=False,
     fix_boundary_east=False,
     fix_boundary_west=False,
+    crosslink_angles=True,
 ) -> Network:
     nt = NetworkType(
         DomainParameters(
@@ -114,7 +115,7 @@ def fibrin_network(
             seed=seed,
         ),
         seed=seed,
-        crosslink_angles=True,
+        crosslink_angles=crosslink_angles,
     )
     return nt.generate()
 
