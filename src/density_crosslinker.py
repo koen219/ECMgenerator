@@ -238,12 +238,25 @@ class StrandDensityCrosslinkDistributerFast(CrosslinkDistributer):
 
     def select_bonds(self, network: Network) -> List[Tuple[BOND, BONDTYPE]]:
         bin = self._binNetwork(network)
+
+        displaced_network = network
+        displaced_network.beads_positions = [
+            pos + self._par.crosslink_bin_size * 0.5
+            for pos in displaced_network.beads_positions
+        ]
+        bin_displaced = self._binNetwork(displaced_network)
+        displaced_network.beads_positions = [
+            pos - self._par.crosslink_bin_size * 0.5
+            for pos in displaced_network.beads_positions
+        ]
+
+        combinations = list(bin.values()) + list(bin_displaced.values())
         pos = np.asarray(network.beads_positions)
 
         bonds, types = list(), list()
 
         number_of_combinations = sum(
-            binom(len(ids), 2) for ids in bin.values() if len(ids) >= 2
+            binom(len(ids), 2) for ids in combinations if len(ids) >= 2
         )
         if number_of_combinations == 0:
             return []
@@ -251,7 +264,7 @@ class StrandDensityCrosslinkDistributerFast(CrosslinkDistributer):
         print(
             self._par.maximal_number_of_initial_crosslinks, number_of_combinations, prob
         )
-        for ids in bin.values():
+        for ids in combinations:
             if len(ids) < 2:
                 continue
             for p1, p2 in itertools.combinations(ids, 2):
@@ -261,10 +274,11 @@ class StrandDensityCrosslinkDistributerFast(CrosslinkDistributer):
                     continue
                 new_bond = (p1, p2)
                 r = np.linalg.norm(pos[p1] - pos[p2])
-                bond_type = self._quantizer.computetype(float(r))
+                if r <= self._par.crosslink_max_r:
+                    bond_type = self._quantizer.computetype(float(r))
 
-                bonds.append(new_bond)
-                types.append(bond_type)
+                    bonds.append(new_bond)
+                    types.append(bond_type)
 
         for typ in set(types):
             network.details_of_bondtypes[typ] = {
