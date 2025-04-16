@@ -231,8 +231,70 @@ def _random_laminin_positions(seed, beads_types, amount_of_laminin):
 from scipy.stats import truncnorm
 from collections import defaultdict
 import itertools
-
+from .network import NetworkBuilder
 import matplotlib.pyplot as plt
+
+from math import sin, pi
+
+
+def create_triangle_grid_network(
+    size: int, number_of_triangles: int, delta: float, crosslink_probability: float
+) -> Network:
+    """
+    Create a network of beads and bonds that forms a grid of equilateral triangles.
+
+    Args:
+        number_of_steps: The number of steps in each direction (i.e., the number of beads).
+        delta: The side length of each equilateral triangle.
+
+    Returns:
+        A Network object representing the bead and bond structure.
+    """
+
+    def get_coords(i, j):
+        x = j * delta + 0.5 * (i % 2) * delta
+        y = sin(pi / 3) * i
+        return x, y
+
+    builder = NetworkBuilder()
+    graph_structure = dict()
+
+    def make_crosslink(bead1, bead2):
+        if np.random.random() < crosslink_probability:
+            builder.split_bond(bead1, bead2, create_angle=True)
+
+    for i in range(number_of_triangles):
+        for j in range(number_of_triangles - (i % 2)):
+            x, y = get_coords(i, j)
+            bead = builder.add_bead((x, y))
+            graph_structure[(i, j)] = bead
+            if j > 0:
+                left_bead = graph_structure[(i, j - 1)]
+                make_crosslink(left_bead, bead)
+
+            # If not the first row, split the bonds one down
+            if i > 0:
+                try:
+                    bead_one_lower = graph_structure[(i - 1, j)]
+                    make_crosslink(bead_one_lower, bead)
+                except KeyError:
+                    pass
+
+                if i % 2 == 1 and j < number_of_triangles - (i % 2):
+                    try:
+                        bead_one_lower = graph_structure[(i - 1, j + 1)]
+                        make_crosslink(bead_one_lower, bead)
+                    except KeyError:
+                        pass
+                if i % 2 == 0 and j > 0:
+                    try:
+                        bead_one_lower = graph_structure[(i - 1, j - 1)]
+                        make_crosslink(bead_one_lower, bead)
+                    except KeyError:
+                        pass
+
+    domain = DomainParameters(size, size)
+    return Network(domain=domain, **builder.get_network())
 
 
 def hexagonal(sizex, sizey, size):

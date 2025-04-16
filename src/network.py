@@ -113,3 +113,72 @@ def rotate_network(network: Network, angle):
     pos[:, 1] += shift_y
 
     network.beads_positions = pos.tolist()
+
+
+class NetworkBuilder:
+    def __init__(self):
+        self.beads_positions: List[Tuple[float, float]] = []
+        self.beads_types: List[BEADTYPE] = []
+        self.bonds_groups: List[BOND] = []
+        self.bonds_types: List[BONDTYPE] = []
+        self.angle_groups: List[ANGLE] = []
+        self.angle_types: List[ANGLETYPE] = []
+        self.bead_counter: int = -1
+
+    def add_bead(self, position: Tuple[float, float], bead_type: BEADTYPE = "spring"):
+        """Adds a bead to the network."""
+        self.beads_positions.append(position)
+        self.beads_types.append(bead_type)
+        self.bead_counter += 1
+        return self.bead_counter
+
+    def add_bond(self, bead1: BEADID, bead2: BEADID, bond_type: BONDTYPE = "spring"):
+        """Adds a bond between two beads."""
+        self.bonds_groups.append((bead1, bead2))
+        self.bonds_types.append(bond_type)
+
+    def add_angle(
+        self,
+        bead1: BEADID,
+        bead2: BEADID,
+        bead3: BEADID,
+        angle_type: ANGLETYPE = "angle",
+    ):
+        """Adds an angle between three beads."""
+        self.angle_groups.append((bead1, bead2, bead3))
+        self.angle_types.append(angle_type)
+
+    def split_bond(
+        self,
+        bead1: BEADID,
+        bead2: BEADID,
+        create_angle: bool = False,
+        angle_type: ANGLETYPE = "angle",
+    ):
+        """Splits a bond between two beads by creating a new bead in the middle."""
+        # Calculate the midpoint of the bond
+        x1, y1 = self.beads_positions[bead1]
+        x2, y2 = self.beads_positions[bead2]
+        new_bead_position = ((x1 + x2) / 2, (y1 + y2) / 2)
+
+        # Add the new bead
+        new_bead_id = self.add_bead(new_bead_position)
+
+        # Create two new bonds
+        self.add_bond(bead1, new_bead_id)
+        self.add_bond(new_bead_id, bead2)
+
+        # Optionally create an angle
+        if create_angle:
+            self.add_angle(bead1, new_bead_id, bead2, angle_type)
+
+    def get_network(self):
+        """Returns the network's data (beads, bonds, angles)."""
+        return {
+            "beads_positions": self.beads_positions,
+            "beads_types": self.beads_types,
+            "bonds_groups": self.bonds_groups,
+            "bonds_types": self.bonds_types,
+            "angle_groups": self.angle_groups,
+            "angle_types": self.angle_types,
+        }
