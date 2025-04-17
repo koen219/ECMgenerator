@@ -9,5 +9,6 @@ from .networks import (
     hexagonal,
     fibrin_network,
     two_crosslinked_strands,
+    triangle_grid,
 )
 from .network import Network, rotate_network

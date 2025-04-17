@@ -237,8 +237,17 @@ import matplotlib.pyplot as plt
 from math import sin, pi
 
 
-def create_triangle_grid_network(
-    size: int, number_of_triangles: int, delta: float, crosslink_probability: float
+def triangle_grid(
+    sizex: int,
+    sizey: int,
+    # number_of_triangles: int,
+    delta: float,
+    crosslink_probability: float,
+    fix_north: bool = True,
+    fix_east: bool = True,
+    fix_south: bool = True,
+    fix_west: bool = True,
+    **kwargs
 ) -> Network:
     """
     Create a network of beads and bonds that forms a grid of equilateral triangles.
@@ -250,10 +259,12 @@ def create_triangle_grid_network(
     Returns:
         A Network object representing the bead and bond structure.
     """
+    number_of_triangles_x = int(sizex / delta) + 4
+    number_of_triangles_y = int(sizey / sin(pi / 3) / delta) + 4
 
     def get_coords(i, j):
         x = j * delta + 0.5 * (i % 2) * delta
-        y = sin(pi / 3) * i
+        y = sin(pi / 3) * i * delta
         return x, y
 
     builder = NetworkBuilder()
@@ -263,10 +274,18 @@ def create_triangle_grid_network(
         if np.random.random() < crosslink_probability:
             builder.split_bond(bead1, bead2, create_angle=True)
 
-    for i in range(number_of_triangles):
-        for j in range(number_of_triangles - (i % 2)):
+    for i in range(number_of_triangles_y):
+        for j in range(number_of_triangles_x - (i % 2)):
             x, y = get_coords(i, j)
-            bead = builder.add_bead((x, y))
+            if (
+                (fix_south and i == 0)
+                or (fix_west and j == 0)
+                or (fix_north and i == number_of_triangles_y - 1)
+                or (fix_east and j == number_of_triangles_x - (i % 2) - 1)
+            ):
+                bead = builder.add_bead((x, y), "boundary")
+            else:
+                bead = builder.add_bead((x, y), "free")
             graph_structure[(i, j)] = bead
             if j > 0:
                 left_bead = graph_structure[(i, j - 1)]
@@ -280,7 +299,7 @@ def create_triangle_grid_network(
                 except KeyError:
                     pass
 
-                if i % 2 == 1 and j < number_of_triangles - (i % 2):
+                if i % 2 == 1 and j < number_of_triangles_x - (i % 2):
                     try:
                         bead_one_lower = graph_structure[(i - 1, j + 1)]
                         make_crosslink(bead_one_lower, bead)
@@ -293,7 +312,7 @@ def create_triangle_grid_network(
                     except KeyError:
                         pass
 
-    domain = DomainParameters(size, size)
+    domain = DomainParameters(sizex, sizey)
     return Network(domain=domain, **builder.get_network())
 
 

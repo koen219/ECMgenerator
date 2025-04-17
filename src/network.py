@@ -125,14 +125,14 @@ class NetworkBuilder:
         self.angle_types: List[ANGLETYPE] = []
         self.bead_counter: int = -1
 
-    def add_bead(self, position: Tuple[float, float], bead_type: BEADTYPE = "spring"):
+    def add_bead(self, position: Tuple[float, float], bead_type: BEADTYPE = "free"):
         """Adds a bead to the network."""
         self.beads_positions.append(position)
         self.beads_types.append(bead_type)
         self.bead_counter += 1
         return self.bead_counter
 
-    def add_bond(self, bead1: BEADID, bead2: BEADID, bond_type: BONDTYPE = "spring"):
+    def add_bond(self, bead1: BEADID, bead2: BEADID, bond_type: BONDTYPE = "polymer"):
         """Adds a bond between two beads."""
         self.bonds_groups.append((bead1, bead2))
         self.bonds_types.append(bond_type)
@@ -142,7 +142,7 @@ class NetworkBuilder:
         bead1: BEADID,
         bead2: BEADID,
         bead3: BEADID,
-        angle_type: ANGLETYPE = "angle",
+        angle_type: ANGLETYPE = "polymer_bend",
     ):
         """Adds an angle between three beads."""
         self.angle_groups.append((bead1, bead2, bead3))
@@ -153,7 +153,7 @@ class NetworkBuilder:
         bead1: BEADID,
         bead2: BEADID,
         create_angle: bool = False,
-        angle_type: ANGLETYPE = "angle",
+        angle_type: ANGLETYPE = "polymer_bend",
     ):
         """Splits a bond between two beads by creating a new bead in the middle."""
         # Calculate the midpoint of the bond
