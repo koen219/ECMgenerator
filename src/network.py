@@ -37,6 +37,11 @@ class Network:
         default_factory=dict
     )
 
+    def __radd__(self, other):
+        if other == 0:
+            return self
+        return self.__add__(other)
+
     def __add__(self, other):
         net = Network(self.domain)
 
@@ -66,10 +71,12 @@ class Network:
 
         new_details = dict()
         for key, value in self.details_of_bondtypes.items():
+            print(key, value)
+            print(other.details_of_bondtypes)
             if (
                 key in other.details_of_bondtypes.keys()
-                and key["k"] != other.details_of_bondtypes[key]["k"]
-                and key["r0"] != other.details_of_bondtypes[key]["r0"]
+                and value["k"] != other.details_of_bondtypes[key]["k"]
+                and value["r0"] != other.details_of_bondtypes[key]["r0"]
             ):
                 raise RuntimeError(
                     "Problem adding networks. Both have specified bond details but they are not the same!!"
@@ -79,8 +86,8 @@ class Network:
         for key, value in other.details_of_bondtypes.items():
             if (
                 key in self.details_of_bondtypes.keys()
-                and key["k"] != self.details_of_bondtypes[key]["k"]
-                and key["r0"] != self.details_of_bondtypes[key]["r0"]
+                and value["k"] != self.details_of_bondtypes[key]["k"]
+                and value["r0"] != self.details_of_bondtypes[key]["r0"]
             ):
                 raise RuntimeError(
                     "Problem adding networks. Both have specified bond details but they are not the same!!"
