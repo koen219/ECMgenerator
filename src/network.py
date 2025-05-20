@@ -18,6 +18,10 @@ ANGLETYPE = str
 
 @dataclass
 class Network:
+    """
+    Represents a network of beads, bonds, and angles with associated properties.
+    """
+
     domain: DomainParameters
 
     beads_positions: List[npt.NDArray[np.float64]] = field(default_factory=list)
@@ -38,11 +42,15 @@ class Network:
     )
 
     def __radd__(self, other):
+        """Implementation of this function allows the use of Network in python 'sum'."""
         if other == 0:
             return self
         return self.__add__(other)
 
     def __add__(self, other):
+        """
+        Combines two networks by merging their beads, bonds, angles.
+        """
         net = Network(self.domain)
 
         net.beads_positions = [x.copy() for x in self.beads_positions]
@@ -100,6 +108,9 @@ class Network:
 
 
 def rotate_network(network: Network, angle):
+    """
+    Rotates the network by a specified angle around the center of the domain.
+    """
     shift_x = network.domain.sizex / 2
     shift_y = network.domain.sizey / 2
 
@@ -123,6 +134,10 @@ def rotate_network(network: Network, angle):
 
 
 class NetworkBuilder:
+    """
+    A builder class for constructing a network of beads, bonds, and angles. (Currently only used to construct the 'triangle' network.)
+    """
+
     def __init__(self):
         self.beads_positions: List[Tuple[float, float]] = []
         self.beads_types: List[BEADTYPE] = []
@@ -133,7 +148,7 @@ class NetworkBuilder:
         self.bead_counter: int = -1
 
     def add_bead(self, position: Tuple[float, float], bead_type: BEADTYPE = "free"):
-        """Adds a bead to the network."""
+        """Adds a bead to the network and return the id of that bead."""
         self.beads_positions.append(position)
         self.beads_types.append(bead_type)
         self.bead_counter += 1
@@ -180,7 +195,7 @@ class NetworkBuilder:
             self.add_angle(bead1, new_bead_id, bead2, angle_type)
 
     def get_network(self):
-        """Returns the network's data (beads, bonds, angles)."""
+        """Returns the network's data."""
         return {
             "beads_positions": self.beads_positions,
             "beads_types": self.beads_types,

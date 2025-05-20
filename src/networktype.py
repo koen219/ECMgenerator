@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class NetworkType:
-    """Config class of the network. Used to generate a Network class."""
+    """Config class of the network. Can be used to generate a network given a way to generate strands and a way to crosslink them."""
 
     def __init__(
         self,

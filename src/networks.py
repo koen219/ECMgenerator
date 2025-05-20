@@ -26,6 +26,13 @@ from .networktype import NetworkType
 from .network import Network
 import numpy.random as npr
 import numpy as np
+from scipy.stats import truncnorm
+from collections import defaultdict
+import itertools
+from .network import NetworkBuilder
+import matplotlib.pyplot as plt
+
+from math import sin, pi
 
 
 def random_network(
@@ -40,6 +47,7 @@ def random_network(
     seed=None,
     fix_boundary=False,
 ) -> Network:
+    """Generate a randomly oriented network."""
     nt = NetworkType(
         DomainParameters(sizex, sizey, fix_boundary=fix_boundary),
         RandomStrandGenerator(
@@ -84,6 +92,7 @@ def fibrin_network(
     fix_boundary_west=False,
     crosslink_angles=True,
 ) -> Network:
+    """Same as directed network except uses a different (faster) crosslinking algorithm."""
     nt = NetworkType(
         DomainParameters(
             sizex,
@@ -138,6 +147,7 @@ def random_directed_network(
     fix_boundary_east=False,
     fix_boundary_west=False,
 ) -> Network:
+    """A random network where the anisotropy can be controlled with the 'direction_spread' and 'direction_angle' parameters."""
     nt = NetworkType(
         DomainParameters(
             sizex,
@@ -171,70 +181,6 @@ def random_directed_network(
         seed=seed,
     )
     return nt.generate()
-
-
-def ISV_network(
-    sizex,
-    sizey,
-    number_of_beads_per_strand,
-    number_of_strands,
-    contour_length_of_strand,
-    crosslink_max_r,
-    maximal_number_of_initial_crosslinks,
-    crosslink_bin_size,
-    spread_xaxis=1.0,
-    seed=None,
-    fix_boundary=None,
-) -> Network:
-    rng = np.random.default_rng(seed)
-    if fix_boundary:
-        domain = DomainParameters(sizex, sizey, fix_boundary=fix_boundary)
-    else:
-        domain = DomainParameters(
-            sizex, sizey, fix_boundary_north=True, fix_boundary_south=True
-        )
-    nt = NetworkType(
-        domain,
-        RandomStrandGenerator(
-            RandomStrandGeneratorParameters(
-                number_of_beads_per_strand=number_of_beads_per_strand,
-                number_of_strands=number_of_strands,
-                contour_length_of_strand=contour_length_of_strand,
-            ),
-            StrandDistributionGeneral(
-                lambda n: rng.normal(sizex * 0.5, spread_xaxis, n),
-                lambda n: rng.uniform(0, sizey, n),
-                lambda n: rng.uniform(0, 2 * np.pi, n),
-            ),
-        ),
-        StrandDensityCrosslinkDistributer(
-            StrandDensityCrosslinkDistributerParameters(
-                crosslink_max_r,
-                maximal_number_of_initial_crosslinks,
-                number_of_beads_per_strand,
-                number_of_strands,
-                crosslink_bin_size,
-            ),
-            seed=seed,
-        ),
-        seed=seed,
-    )
-    return nt.generate()
-
-
-def _random_laminin_positions(seed, beads_types, amount_of_laminin):
-    rng = np.random.default_rng(seed)
-    free_indices = [k for k, typ in enumerate(beads_types) if typ == "free"]
-    list(rng.choice(free_indices, size=amount_of_laminin, replace=False))
-
-
-from scipy.stats import truncnorm
-from collections import defaultdict
-import itertools
-from .network import NetworkBuilder
-import matplotlib.pyplot as plt
-
-from math import sin, pi
 
 
 def triangle_grid(
@@ -317,6 +263,7 @@ def triangle_grid(
 
 
 def hexagonal(sizex, sizey, size):
+    """Generates an ECM made out of hexagons."""
     domain = DomainParameters(sizex, sizey, fix_boundary=True)
 
     horizontal_spacing = np.sqrt(3) * size  #  * (3.0 / 2.0)
@@ -515,6 +462,7 @@ def regular(
     fix_boundary,
     single_side=False,
 ):
+    """Creates a network of small squares: All horizontal and vertical strands that are crosslinked at the intersections."""
     print("single_side = ", single_side)
     par = RegularNetworkParameters(
         number_of_fibers_per_side,
@@ -541,6 +489,7 @@ def single_spring(
     contour_length_of_strand,
     seed=None,
 ) -> Network:
+    """Generates a zig-zag like strand. Usefull for testing."""
 
     assert number_of_strands % 2 == 1
     n = (number_of_strands - 1) // 2
@@ -569,6 +518,7 @@ def single_spring(
 
 
 def two_crosslinked_strands(r0):
+    """Creates two strands with a single crosslinker."""
     beads = 4
     strand1 = single_strand(10, 10, 5, 5, 0, beads, (beads - 1) * r0)
     strand2 = single_strand(10, 10, 5, 4, 0, beads, (beads - 1) * r0)
